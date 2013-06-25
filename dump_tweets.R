@@ -74,6 +74,7 @@ if ( !is.null(opt$export.uid ) ) {
 
   if(dbExistsTable(tag.conn, "tweets")) {
     tweets_df<- dbReadTable(tag.conn, "tweets")
+    tweets_df$created <- as.POSIXct(tweets_df$created, origin="1970-01-01")
     save(tweets_df, file=sprintf("%s.Rdata", opt$export.uid))
   } else {
     logwarn("table tweets does not exist! Nothing to do, Bye!")
