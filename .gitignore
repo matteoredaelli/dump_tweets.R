@@ -1,5 +1,6 @@
 # History files
 .Rhistory
 twitCred.Rdata
+db/*.db
 # Example code in package build process
 *-Ex.R

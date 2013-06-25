@@ -66,7 +66,7 @@ if ( is.null(opt$records ) ) { opt$records = 15 }
 twitter.db <- file.path(opt$db, "twitter.db")
 db.conn <- dbConnect("SQLite", dbname = twitter.db)
 if(dbExistsTable(db.conn, "search")) {
-  search <-dbGetQuery(db.conn, "select * from search")
+  search <-dbGetQuery(db.conn, "select * from search where enabled=1")
 } else {
   search <- NULL
 }
@@ -114,10 +114,12 @@ if ( is.null(opt$add) &  is.null(opt$show) ) {
       }
       
       sinceID <- options$sinceID[1]
-      logwarn(sprintf("sinceID=%s", sinceID))
- 
+      since <- record$since
+      until <- record$until
+      
+      logwarn(sprintf("sinceID=%s, since=%s, until=%s", sinceID, since, until))
 
-      tweets <- searchTwitter(record$tag, n=opt$records, sinceID=sinceID)
+      tweets <- searchTwitter(record$tag, n=opt$records, sinceID=sinceID, since=since, until=until)
 
       if (length(tweets) == 0) {
         logwarn("No tweets found!!")
