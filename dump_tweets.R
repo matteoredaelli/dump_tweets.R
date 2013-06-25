@@ -41,6 +41,7 @@ spec = matrix(c(
   'verbose', 'v', 2, "integer",
   'help' , 'h', 0, "logical",
   'add' , 'a', 1, "character",
+  'export.uid' , 'e', 1, "character",
   'db' , 'd', 1, "character",
   'records' , 'n', 1, "integer",
   'show' , 's', 0, "logical",
@@ -62,8 +63,24 @@ if ( !is.null(opt$version) ) {
 #set some reasonable defaults for the options that are needed,
 #but were not specified.
 if ( is.null(opt$db ) ) { opt$db = "db/" }
-if ( is.null(opt$records ) ) { opt$records = 15 }
+if ( is.null(opt$records ) ) { opt$records = 1500 }
 twitter.db <- file.path(opt$db, "twitter.db")
+
+if ( !is.null(opt$export.uid ) ) {
+  loginfo(paste("Exporting tweets for", opt$export.uid))
+      
+  tag.db <- file.path(opt$db, paste("s", opt$export.uid, "db", sep="."))
+  tag.conn <- dbConnect("SQLite", dbname = tag.db)
+
+  if(dbExistsTable(tag.conn, "tweets")) {
+    tweets_df<- dbReadTable(tag.conn, "tweets")
+    save(tweets_df, file=sprintf("%s.Rdata", opt$export.uid))
+  } else {
+    logwarn("table tweets does not exist! Nothing to do, Bye!")
+  }
+  
+  q(status=1)
+}
 db.conn <- dbConnect("SQLite", dbname = twitter.db)
 if(dbExistsTable(db.conn, "search")) {
   search <-dbGetQuery(db.conn, "select * from search where enabled=1")
