@@ -15,7 +15,7 @@ you have to create  Twitter API and then register it
 matteo@ubuntu:~/src/dump_tweets.R$ Rscript dump_tweets.R --help
 Usage: dump_tweets.R [-[-verbose|v] [<integer>]] [-[-help|h]] [-[-add|a] <character>] [-[-db|d] <character>] [-[-records|n] <integer>] [-[-show|s]] [-[-version|V]]
 
-matteo@ubuntu:~/src/dump_tweets$ Rscript dump_tweets.R --add search.csv 
+matteo@ubuntu:~/src/dump_tweets$ Rscript dump_tweets.R --import search.csv 
 
 matteo@ubuntu:~/src/dump_tweets$ Rscript dump_tweets.R --show
   row_names        uid        tag      since      until lang

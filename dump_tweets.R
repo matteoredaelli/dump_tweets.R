@@ -40,15 +40,20 @@ basicConfig()
 spec = matrix(c(
   'verbose', 'v', 2, "integer",
   'help' , 'h', 0, "logical",
-  'add' , 'a', 1, "character",
+  'import' , 'i', 1, "character",
   'export.uid' , 'e', 1, "character",
   'db' , 'd', 1, "character",
-  'records' , 'n', 1, "integer",
+  'remove' , 'r', 1, "character",
+  'records' , 'N', 1, "integer",
   'show' , 's', 0, "logical",
   'version' , 'V', 0, "logical"
   ), byrow=TRUE, ncol=4)
 
 opt = getopt(spec);
+
+## ############################################
+## CMD help
+## ############################################
 # if help was asked for print a friendly message
 # and exit with a non-zero error code
 if ( !is.null(opt$help) ) {
@@ -60,14 +65,18 @@ if ( !is.null(opt$version) ) {
   cat("version 0.1\n")
   q(status=1)
 }
-#set some reasonable defaults for the options that are needed,
-#but were not specified.
+## set some reasonable defaults for the options that are needed,
+## but were not specified.
 if ( is.null(opt$db ) ) { opt$db = "db/" }
 if ( is.null(opt$records ) ) { opt$records = 1500 }
+
 twitter.db <- file.path(opt$db, "twitter.db")
 
+## ############################################
+## CMD export.uid
+## ############################################
 if ( !is.null(opt$export.uid ) ) {
-  loginfo(paste("Exporting tweets for", opt$export.uid))
+  loginfo(paste("Exporting tweets for UID", opt$export.uid))
       
   tag.db <- file.path(opt$db, paste("s", opt$export.uid, "db", sep="."))
   tag.conn <- dbConnect("SQLite", dbname = tag.db)
@@ -82,40 +91,62 @@ if ( !is.null(opt$export.uid ) ) {
   
   q(status=1)
 }
+
 db.conn <- dbConnect("SQLite", dbname = twitter.db)
 if(dbExistsTable(db.conn, "search")) {
-  search <-dbGetQuery(db.conn, "select * from search where enabled=1")
+  search <-dbGetQuery(db.conn, "select * from search")
 } else {
   search <- NULL
 }
 
-if ( !is.null(opt$add) ) {
-  search <- read.csv(opt$add, header=T)
+## ############################################
+## CMD remove
+## ############################################
+if ( !is.null(opt$remove) ) {
+  sql <- sprintf("delete from search where uid='%s'", opt$remove)
+  loginfo(sql)
+  dbGetQuery(db.conn, sql)
+}
+
+## ############################################
+## CMD import
+## ############################################
+if ( !is.null(opt$import) ) {
+  search <- read.csv(opt$import, header=T)
   append <- FALSE
   if(dbExistsTable(db.conn, "search")) 
     append <- TRUE
-  
+
+  loginfo(sprintf("Importing searches from file %s with option append=%s", opt$import, as.character(append)))
+
   dbWriteTable(db.conn, "search", search, append = append)
 }
 
 dbDisconnect(db.conn)
 
+## ############################################
+## CMD show
+## ############################################
 if ( !is.null(opt$show ) ) {
   print(search)
 }
 
-if ( is.null(opt$add) &  is.null(opt$show) ) {
+## ############################################
+## CMD 
+## ############################################
+if ( is.null(opt$import) & is.null(opt$show) & is.null(opt$remove) ) {
+  logwarn("Retreiving twitter credentials from file twitCred.Rdata")
   ## cred <- OAuthFactory$new(consumerKey="XXXX",
   ##                         consumerSecret="XX",
   ##                         requestURL="https://api.twitter.com/oauth/request_token",
   ##                         accessURL="http://api.twitter.com/oauth/access_token",
   ##                         authURL="http://api.twitter.com/oauth/authorize")
   ##cred$handshake()
-  
   load("twitCred.Rdata")
   registerTwitterOAuth(twitCred)
 
-  if(!is.null(search)) {
+  search <- subset(search, enabled=1)
+  if(!is.null(search) & nrow(search) >=1) {
     for (c in seq(1,nrow(search))) {
       record <- search[c,]
       loginfo(paste("Dump tweets for", record$tag))

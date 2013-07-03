@@ -1,3 +1,5 @@
 uid,tag,since,until,lang,enabled
 opensource,opensource,2000-01-01,2013-07-24,NULL,0
-SBF13,#SBF13,2000-01-01,2013-07-24,NULL,1
+SBF13,#SBF13,2000-01-01,2013-07-24,NULL,0
+SAPForum,#SAPForum,2013-03-01,2013-08-24,NULL,0
+endcoal,#endcoal,2013-03-01,2013-08-24,NULL,1
