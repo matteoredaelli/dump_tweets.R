@@ -40,7 +40,7 @@ basicConfig()
 spec = matrix(c(
   'verbose', 'v', 2, "integer",
   'help' , 'h', 0, "logical",
-  'import' , 'i', 1, "character",
+  'add' , 'a', 1, "character",
   'export.uid' , 'e', 1, "character",
   'db' , 'd', 1, "character",
   'remove' , 'r', 1, "character",
@@ -109,15 +109,15 @@ if ( !is.null(opt$remove) ) {
 }
 
 ## ############################################
-## CMD import
+## CMD add
 ## ############################################
-if ( !is.null(opt$import) ) {
-  search <- read.csv(opt$import, header=T)
+if ( !is.null(opt$add) ) {
+  search <- read.csv(opt$add, header=T)
   append <- FALSE
   if(dbExistsTable(db.conn, "search")) 
     append <- TRUE
 
-  loginfo(sprintf("Importing searches from file %s with option append=%s", opt$import, as.character(append)))
+  loginfo(sprintf("Importing searches from file %s with option append=%s", opt$add, as.character(append)))
 
   dbWriteTable(db.conn, "search", search, append = append)
 }
@@ -134,7 +134,7 @@ if ( !is.null(opt$show ) ) {
 ## ############################################
 ## CMD 
 ## ############################################
-if ( is.null(opt$import) & is.null(opt$show) & is.null(opt$remove) ) {
+if ( is.null(opt$add) & is.null(opt$show) & is.null(opt$remove) ) {
   logwarn("Retreiving twitter credentials from file twitCred.Rdata")
   ## cred <- OAuthFactory$new(consumerKey="XXXX",
   ##                         consumerSecret="XX",
