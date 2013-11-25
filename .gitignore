@@ -1,6 +1,7 @@
 # History files
 .Rhistory
 *.Rdata
-db/*.db
+*~
+config.R
 # Example code in package build process
 *-Ex.R
