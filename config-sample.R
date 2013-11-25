@@ -33,7 +33,7 @@ my.config <- list(
     ## #################################
     consumer_key    = 'XXX',
     consumer_secret = 'XXX',
-    access_token    = "XXX-9qnOlxB7Ol4dxVlp0CAKjSi46khkThSbLXrYK1q3",
+    access_token    = "XXX",
     access_secret   = "XXX",
     sleep.dump      = 5,
     ## #################################
