@@ -16,33 +16,26 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-01-25: matteo redaelli: first release
+## 2013-11-26: matteo redaelli: first release
+##
+
+##################################################################
+## TODO
+##################################################################
+## 
 ##
 ##
 
-library(logging)
+library(RMySQL)
 
-my.config <- list(
-    ## #################################
-    ## database
-    ## #################################
-    host     = "localhost",
-    db       = "twitter",
-    user     = "root",
-    pass     = "",
-    ## #################################
-    ## search twitter
-    ## #################################
-    consumer_key    = 'XXX',
-    consumer_secret = 'XXX',
-    access_token    = "XXX",
-    access_secret   = "XXX",
-    sleep.dump      = 5,
-    ## #################################
-    ## dump
-    ## #################################
-    rdata.folder    = ".",
-    last=1
-    )
+## ############################################
+## loading options
+## ############################################
+logwarn(sprintf("Connecting to database=%s, host=%s with user=%s",
+                my.config$db, my.config$host, my.config$user))
 
-basicConfig()
+con <- dbConnect(MySQL(),
+                 db=my.config$db,
+                 user=my.config$user,
+                 pass=my.config$pass,
+                 host=my.config$host)

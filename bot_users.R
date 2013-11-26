@@ -16,33 +16,28 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-01-25: matteo redaelli: first release
+## 2013-11-26: matteo redaelli: first release
+##
+
+##################################################################
+## TODO
+##################################################################
 ##
 ##
 
-library(logging)
 
-my.config <- list(
-    ## #################################
-    ## database
-    ## #################################
-    host     = "localhost",
-    db       = "twitter",
-    user     = "root",
-    pass     = "",
-    ## #################################
-    ## search twitter
-    ## #################################
-    consumer_key    = 'XXX',
-    consumer_secret = 'XXX',
-    access_token    = "XXX",
-    access_secret   = "XXX",
-    sleep.dump      = 5,
-    ## #################################
-    ## dump
-    ## #################################
-    rdata.folder    = ".",
-    last=1
-    )
 
-basicConfig()
+## ############################################
+## loading options
+## ############################################
+
+source("config.R")
+source("db_connect.R")
+source("twitter_connect.R")
+
+dbDisconnect(con)
+
+#TODO
+#users <- lookupUsers(c("matteoredaelli", "Pirelli_Media"))
+#users.ldf <- lapply(u, as.data.frame)
+#users.df <- do.call("rbind", users.ldf)

@@ -16,33 +16,27 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-01-25: matteo redaelli: first release
+## 2013-11-26: matteo redaelli: first release
+##
+
+##################################################################
+## TODO
+##################################################################
 ##
 ##
 
-library(logging)
+library(twitteR)
 
-my.config <- list(
-    ## #################################
-    ## database
-    ## #################################
-    host     = "localhost",
-    db       = "twitter",
-    user     = "root",
-    pass     = "",
-    ## #################################
-    ## search twitter
-    ## #################################
-    consumer_key    = 'XXX',
-    consumer_secret = 'XXX',
-    access_token    = "XXX",
-    access_secret   = "XXX",
-    sleep.dump      = 5,
-    ## #################################
-    ## dump
-    ## #################################
-    rdata.folder    = ".",
-    last=1
+## ############################################
+## loading options
+## ############################################
+
+logwarn("Connecting to TWITTER...")
+          
+setup_twitter_oauth(
+    consumer_key = 'm3GtR24P1biGReMyRdffg',
+    consumer_secret = 'zbLnjPFSA8reqhDgpOEEc6JlvE25nSOBRSSzyXZY',
+    access_token = "162665531-9qnOlxB7Ol4dxVlp0CAKjSi46khkThSbLXrYK1q3",
+    access_secret = "L8OVVvHlL20IxJF9j4tgYiSBurcKlZ0384Ki4vvBM", 
+    credentials_file=NULL
     )
-
-basicConfig()

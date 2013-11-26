@@ -50,3 +50,26 @@ CREATE TABLE search_tweets (
   `latitude` float,
    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `description` text,
+  `statusesCount` BIGINT UNSIGNED DEFAULT NULL,
+  `followersCount` BIGINT UNSIGNED DEFAULT NULL,
+  `favoritesCount` BIGINT UNSIGNED DEFAULT NULL,
+  `friendsCount` BIGINT UNSIGNED DEFAULT NULL,
+  `url` varchar(200),
+  `name` varchar(50),
+  `created` datetime,
+  `protected` BOOL DEFAULT NULL,
+  `verified` BOOL DEFAULT NULL,
+  `screenName` varchar(50),
+  `location` varchar(200),
+  `id` BIGINT UNSIGNED,
+  `listedCount` double DEFAULT NULL,
+  `followRequestSent` BOOL DEFAULT NULL,
+  `profileImageUrl` varchar(200),
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

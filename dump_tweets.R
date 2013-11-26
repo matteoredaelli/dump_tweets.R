@@ -19,10 +19,6 @@
 ## 2013-11-25: matteo redaelli: switching to mysql
 ##
 
-library(RMySQL)
-library(logging)
-
-
 ## ############################################
 ## dumpOneSearch
 ## ############################################
@@ -60,13 +56,7 @@ dumpSearches <- function(folder) {
 ## loading options
 ## ############################################
 
-basicConfig()
 source("config.R")
-
-con <- dbConnect(MySQL(),
-                 db=my.config$db,
-                 user=my.config$user,
-                 pass=my.config$pass,
-                 host=my.config$host)
+source("db_connect.R")
 dumpSearches(my.config$rdata.folder)
 dbDisconnect(con)

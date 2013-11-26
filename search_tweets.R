@@ -27,10 +27,6 @@
 ##
 ##
 
-library(twitteR)
-library(RMySQL)
-library(logging)
-
 ## ############################################
 ## searchOne
 ## ############################################
@@ -85,18 +81,13 @@ searchFor <- function(sleep=5) {
     }
 }
 
-basicConfig()
-
 ## ############################################
 ## loading options
 ## ############################################
 
 source("config.R")
-
-con <- dbConnect(MySQL(),
-                 db=my.config$db,
-                 user=my.config$user,
-                 pass=my.config$pass,
-                 host=my.config$host)
+source("db_connect.R")
+source("twitter_connect.R")
 searchFor(my.config$sleep.dump)
 dbDisconnect(con)
+
