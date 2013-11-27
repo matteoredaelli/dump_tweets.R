@@ -16,7 +16,7 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-11-27: matteo redaelli: first release
+## 2013-1-27: matteo redaelli: first release
 ##
 
 ##################################################################
@@ -26,19 +26,27 @@
 ##
 
 ## ############################################
-## botUsers
+## botUserTimeline
 ## ############################################
-botUsers <- function(users.id) {
-    if (length(users.id) == 0) {
-        logwarn("No users to be bot!!")
-    } else {
-        logwarn(sprintf("twitter lookup %d users", length(users.id)))
-        users <- lookupUsers(users.id)
-        users.ldf <- lapply(users, as.data.frame)
-        users.df <- do.call("rbind", users.ldf)
+botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
+    logwarn(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
+    tweets <- userTimeline(id, n=1500, sinceID=sinceID, includeRts=includeRts)
+    saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
+}
 
-        logwarn("saving data to users table...")
-        dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE)
+## ############################################
+## botUsersTimelines
+## ############################################
+botUsersTimelines <- function(sleep=5) {
+    logwarn("Starting bot timelines...")
+    search.for <- dbGetQuery(con, "select * from bot_users where enabled=1")
+
+    for (c in 1:nrow(search.for)) {
+        record <- search.for[c,]
+        logwarn(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
+        try(botUserTimeline(record$id, sinceID=record$sinceid))
+        loginfo("Sleeping some seconds...")
+        Sys.sleep(sleep)
     }
 }
 
@@ -49,19 +57,6 @@ botUsers <- function(users.id) {
 source("config.R")
 source("db_connect.R")
 source("twitter_connect.R")
-
-logwarn("bot users from table bot_users")
-user.df <- dbGetQuery(con, "select id from bot_users")
-botUsers(user.df$id)
-
-logwarn("bot users from tweets")
-sql <- "select distinct screenName id from search_tweets minus where screenName not in  (select screenName from users)"
-user.df <- dbGetQuery(con, sql)
-botUsers(user.df$id)
-
-logwarn("Empting queue table bot users...")
-sql <- "truncate table bot_users"
-dbSendQuery(con, sql)
-
+botUsersTimelines(my.config$sleep.dump)
 dbDisconnect(con)
 

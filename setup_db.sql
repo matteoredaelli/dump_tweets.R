@@ -31,8 +31,8 @@ CREATE TABLE search_results (
    PRIMARY KEY (search_for_id, tweet_id)
 );
 
-DROP TABLE IF EXISTS search_tweets;
-CREATE TABLE search_tweets (
+DROP TABLE IF EXISTS tweets;
+CREATE TABLE tweets (
   `text` text,
   `favorited` BOOL DEFAULT NULL,
   `favoriteCount` float DEFAULT NULL,
@@ -80,15 +80,19 @@ CREATE TABLE `users` (
 DROP TABLE IF EXISTS bot_users;
 CREATE TABLE bot_users (
   `id` varchar(30) not null,
+  `mail` varchar(300) not null,
+  `sinceid` BIGINT UNSIGNED not NULL default 0,
+  `enabled` BOOL DEFAULT 1,
+  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,	
    PRIMARY KEY (id)
 );
 
-insert into bot_users (id) values 
-  ('Bridgestone'),
-  ('goodyear_uk'),
-  ('Pirelli_Media'),
-  ('continentaltire'),
-  ('MichelinTyres')
+insert into bot_users (id, mail) values 
+  ('Bridgestone', 'matteo.redaelli@gmail.com'),
+  ('goodyear_uk', 'matteo.redaelli@gmail.com'),
+  ('Pirelli_Media', 'matteo.redaelli@gmail.com'),
+  ('continentaltire', 'matteo.redaelli@gmail.com'),
+  ('MichelinTyres', 'matteo.redaelli@gmail.com')
 ;
 
 DROP TABLE IF EXISTS stats_db;

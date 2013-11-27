@@ -16,29 +16,30 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-11-27: matteo redaelli: new file
+## 2013-11-27: matteo redaelli: first release
+##
+
+##################################################################
+## TODO
+##################################################################
+##
 ##
 
 ## ############################################
-## StatsDB
+## botUsers
 ## ############################################
-StatsDB <- function(folder) {
-    logwarn("Dumping statistics...")
-    records <- dbGetQuery(con, "select count(*) from users")
-    users <- as.integer(records[1][1])
-    records <- dbGetQuery(con, "select count(*) from tweets")
-    tweets <- as.integer(records[1][1])
-    records <- dbGetQuery(con, "select count(*) from search_for")
-    searches <- as.integer(records[1][1])
-    
-    sql <- sprintf("delete from stats_db where day='%s'", format(Sys.Date(), "%Y%m%d"))
-    dbSendQuery(con, sql)
-    
-    sql <- sprintf("insert into stats_db (day, users, tweets, searches) values ('%s', '%d', '%d', '%d')",
-                   format(Sys.Date(), "%Y%m%d"), users, tweets, searches)
-    logwarn(sql)
-    dbSendQuery(con, sql)
-    return(0)
+botUsers <- function(users.id) {
+    if (length(users.id) == 0) {
+        logwarn("No users to be bot!!")
+    } else {
+        logwarn(sprintf("twitter lookup %d users", length(users.id)))
+        users <- lookupUsers(users.id)
+        users.ldf <- lapply(users, as.data.frame)
+        users.df <- do.call("rbind", users.ldf)
+
+        logwarn("saving data to users table...")
+        dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE)
+    }
 }
 
 ## ############################################
@@ -47,5 +48,16 @@ StatsDB <- function(folder) {
 
 source("config.R")
 source("db_connect.R")
-StatsDB(my.config$rdata.folder)
+source("twitter_connect.R")
+
+logwarn("bot users from table bot_users")
+user.df <- dbGetQuery(con, "select id from bot_users")
+botUsers(user.df$id)
+
+logwarn("bot users from tweets")
+sql <- "select distinct screenName id from tweets minus where screenName not in  (select screenName from users)"
+user.df <- dbGetQuery(con, sql)
+botUsers(user.df$id)
+
 dbDisconnect(con)
+

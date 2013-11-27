@@ -34,26 +34,7 @@ searchOne <- function(id, q, sinceID) {
     logwarn(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
     tweets <- searchTwitter(q, n=1500, sinceID=sinceID)
 
-    if (length(tweets) == 0) {
-        logwarn("No tweets found!!")
-    } else {
-        tweets_df = twListToDF(tweets)
-        logwarn(sprintf("Found %d tweets", nrow(tweets_df)))
-        
-        maxID <- max(tweets_df$id)
-        logwarn(sprintf("maxID=%s", maxID))
-
-        logwarn("saving data to tweet table...")
-        dbWriteTable(con, "search_tweets", tweets_df, row.names=FALSE, append=TRUE)
-
-        logwarn("saving data to search_results table...")
-        results <- data.frame(search_for_id=id, tweet_id=tweets_df$id)
-        dbWriteTable(con, "search_results", results, row.names=FALSE, append=TRUE)
-        
-        logwarn("updating sinceid in search_for table...")
-        sql <- sprintf("update search_for set sinceid=%s where id='%s'", maxID, id) 
-        dbSendQuery(con, sql)
-    }
+    saveTweetsAndSinceID(id, tweets, sinceID.table="search_for", results.table="search_results")
 }
 
 ## ############################################
