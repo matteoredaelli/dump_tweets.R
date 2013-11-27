@@ -42,13 +42,25 @@ dumpOneSearch <- function(record, folder) {
 ## dumpSearches
 ## ############################################
 dumpSearches <- function(folder) {
-    logwarn("Connecting to DB...")
+    logwarn("Dumping searches...")
     search.for <- dbGetQuery(con, "select *, date_format(CURDATE(), dump_period) period from search_for where enabled=1")
 
     for (c in 1:nrow(search.for)) {
         record <- search.for[c,]
         dumpOneSearch(record, folder)
     }
+}
+
+## ############################################
+## dumpUsers
+## ############################################
+dumpUsers <- function(folder) {
+    logwarn("Dumping users...")
+    users <- dbGetQuery(con, "select * from users")
+
+    filename <- file.path(folder, "users.Rdata")
+    logwarn(sprintf("Saving to file %s", filename))
+    save(users, file=filename, compress="gzip")
 }
 
 
@@ -59,4 +71,5 @@ dumpSearches <- function(folder) {
 source("config.R")
 source("db_connect.R")
 dumpSearches(my.config$rdata.folder)
+dumpUsers(my.config$rdata.folder)
 dbDisconnect(con)

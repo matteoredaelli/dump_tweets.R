@@ -26,24 +26,14 @@
 ##
 
 ## ############################################
-## searchOne
-## ############################################
-searchOne <- function(id, q, sinceID) {
-    logwarn(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
-}
-
-## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function() {
-    logwarn("Starting bot users...")
-    search.for <- dbGetQuery(con, "select id from bot_users where enabled=1")
-
-    if (length(search.for) == 0) {
+botUsers <- function(users.id) {
+    if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
-        logwarn(sprintf("twitter lookup %d users", nrow(search.for)))
-        users <- lookupUsers(search.for$id)
+        logwarn(sprintf("twitter lookup %d users", length(users.id)))
+        users <- lookupUsers(users.id)
         users.ldf <- lapply(users, as.data.frame)
         users.df <- do.call("rbind", users.ldf)
 
@@ -59,6 +49,15 @@ botUsers <- function() {
 source("config.R")
 source("db_connect.R")
 source("twitter_connect.R")
-botUsers()
+
+logwarn("bot users from table bot_users")
+user.df <- dbGetQuery(con, "select id from bot_users where enabled=1")
+botUsers(user.df$id)
+
+logwarn("bot users from tweets")
+sql <- "select distinct screenName id from search_tweets minus where screenName not in  (select screenName from users)"
+user.df <- dbGetQuery(con, sql)
+botUsers(user.df$id)
+
 dbDisconnect(con)
 
