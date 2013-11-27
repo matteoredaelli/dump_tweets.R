@@ -93,3 +93,12 @@ insert into bot_users (id, mail) values
   ('MichelinTyres', 'matteo.redaelli@gmail.com')
 ;
 
+DROP TABLE IF EXISTS stats_db;
+CREATE TABLE stats_db (
+  `day` varchar(8) not null,
+  `users` int(8) not null,
+  `tweets` int(8) not null,
+  `searches` int(8) not null,
+   PRIMARY KEY (day)
+);
+
