@@ -16,7 +16,7 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-11-26: matteo redaelli: first release
+## 2013-11-27: matteo redaelli: first release
 ##
 
 ##################################################################
@@ -25,7 +25,32 @@
 ##
 ##
 
+## ############################################
+## searchOne
+## ############################################
+searchOne <- function(id, q, sinceID) {
+    logwarn(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
+}
 
+## ############################################
+## botUsers
+## ############################################
+botUsers <- function() {
+    logwarn("Starting bot users...")
+    search.for <- dbGetQuery(con, "select id from bot_users where enabled=1")
+
+    if (length(search.for) == 0) {
+        logwarn("No users to be bot!!")
+    } else {
+        logwarn(sprintf("twitter lookup %d users", nrow(search.for)))
+        users <- lookupUsers(search.for$id)
+        users.ldf <- lapply(users, as.data.frame)
+        users.df <- do.call("rbind", users.ldf)
+
+        logwarn("saving data to users table...")
+        dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE)
+    }
+}
 
 ## ############################################
 ## loading options
@@ -34,10 +59,6 @@
 source("config.R")
 source("db_connect.R")
 source("twitter_connect.R")
-
+botUsers()
 dbDisconnect(con)
 
-#TODO
-#users <- lookupUsers(c("matteoredaelli", "Pirelli_Media"))
-#users.ldf <- lapply(u, as.data.frame)
-#users.df <- do.call("rbind", users.ldf)

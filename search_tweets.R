@@ -60,15 +60,6 @@ searchOne <- function(id, q, sinceID) {
 ## searchFor
 ## ############################################
 searchFor <- function(sleep=5) {
-    logwarn("Connecting to twitter...")
-    setup_twitter_oauth(
-        consumer_key = 'm3GtR24P1biGReMyRdffg',
-        consumer_secret = 'zbLnjPFSA8reqhDgpOEEc6JlvE25nSOBRSSzyXZY',
-        access_token = "162665531-9qnOlxB7Ol4dxVlp0CAKjSi46khkThSbLXrYK1q3",
-        access_secret = "L8OVVvHlL20IxJF9j4tgYiSBurcKlZ0384Ki4vvBM", 
-        credentials_file=NULL
-        )
-    
     logwarn("Starting searches...")
     search.for <- dbGetQuery(con, "select * from search_for where enabled=1")
 

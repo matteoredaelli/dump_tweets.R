@@ -17,9 +17,10 @@ CREATE TABLE search_for (
 );
 
 insert into search_for (id, mail, q) values 
-  ('Bridgestone', 'matteo.redaelli@gmail.com', '#Bridgestone OR @Bridgestone'),
+  ('bridgestone', 'matteo.redaelli@gmail.com', '#Bridgestone OR @Bridgestone'),
   ('goodyear', 'matteo.redaelli@gmail.com', '#goodyear OR @goodyear_uk'),
   ('pirelli', 'matteo.redaelli@gmail.com', '#pirelli OR @Pirelli_Media'),
+  ('continental', 'matteo.redaelli@gmail.com', '#continentaltire OR @continentaltire'),
   ('michelin', 'matteo.redaelli@gmail.com', '#michelin OR @MichelinTyres')
 ;
 
@@ -71,5 +72,24 @@ CREATE TABLE `users` (
   `listedCount` double DEFAULT NULL,
   `followRequestSent` BOOL DEFAULT NULL,
   `profileImageUrl` varchar(200),
+  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS bot_users;
+CREATE TABLE bot_users (
+  `id` varchar(30) not null,
+  `mail` varchar(300) not null,
+  `enabled` BOOL DEFAULT 1,
+  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (id)
+);
+
+insert into bot_users (id, mail) values 
+  ('Bridgestone', 'matteo.redaelli@gmail.com'),
+  ('goodyear_uk', 'matteo.redaelli@gmail.com'),
+  ('Pirelli_Media', 'matteo.redaelli@gmail.com'),
+  ('continentaltire', 'matteo.redaelli@gmail.com'),
+  ('MichelinTyres', 'matteo.redaelli@gmail.com')
+;
+
