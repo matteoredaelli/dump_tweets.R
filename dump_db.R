@@ -63,6 +63,21 @@ dumpUsers <- function(folder) {
     save(users, file=filename, compress="gzip")
 }
 
+## ############################################
+## dumpStatsDB
+## ############################################
+dumpStatsDB <- function(folder) {
+    logwarn("Dumping statistics...")
+    record <- dbGetQuery(con, "select count(*) from users")
+    users <- nrow(record)
+    record <- dbGetQuery(con, "select count(*) from search_tweets")
+    tweets <- nrow(record)
+    record <- dbGetQuery(con, "select count(*) from search_for")
+    searches <- nrow(record)
+    stats <- sprintf("users=%d, searches=%d, tweets=%d\n", users,searches,tweets)
+    filename <- file.path(folder, "stats.txt")
+    cat(stats, filename) 
+}
 
 ## ############################################
 ## loading options
@@ -72,4 +87,5 @@ source("config.R")
 source("db_connect.R")
 dumpSearches(my.config$rdata.folder)
 dumpUsers(my.config$rdata.folder)
+dumpStatsDB(my.config$rdata.folder)
 dbDisconnect(con)
