@@ -42,13 +42,14 @@ CREATE TABLE search_tweets (
   `replyToSID` BIGINT UNSIGNED not NULL,
   `id` BIGINT UNSIGNED not NULL,
   `replyToUID` BIGINT UNSIGNED not NULL,
-  `statusSource` text,
+  `statusSource` varchar(300),
   `screenName` varchar(50),
   `retweetCount` float DEFAULT NULL,
   `isRetweet` BOOL DEFAULT NULL,
   `retweeted` BOOL DEFAULT NULL,
   `longitude` float,
   `latitude` float,
+  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -79,18 +80,15 @@ CREATE TABLE `users` (
 DROP TABLE IF EXISTS bot_users;
 CREATE TABLE bot_users (
   `id` varchar(30) not null,
-  `mail` varchar(300) not null,
-  `enabled` BOOL DEFAULT 1,
-  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (id)
 );
 
-insert into bot_users (id, mail) values 
-  ('Bridgestone', 'matteo.redaelli@gmail.com'),
-  ('goodyear_uk', 'matteo.redaelli@gmail.com'),
-  ('Pirelli_Media', 'matteo.redaelli@gmail.com'),
-  ('continentaltire', 'matteo.redaelli@gmail.com'),
-  ('MichelinTyres', 'matteo.redaelli@gmail.com')
+insert into bot_users (id) values 
+  ('Bridgestone'),
+  ('goodyear_uk'),
+  ('Pirelli_Media'),
+  ('continentaltire'),
+  ('MichelinTyres')
 ;
 
 DROP TABLE IF EXISTS stats_db;

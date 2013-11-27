@@ -51,13 +51,17 @@ source("db_connect.R")
 source("twitter_connect.R")
 
 logwarn("bot users from table bot_users")
-user.df <- dbGetQuery(con, "select id from bot_users where enabled=1")
+user.df <- dbGetQuery(con, "select id from bot_users")
 botUsers(user.df$id)
 
 logwarn("bot users from tweets")
 sql <- "select distinct screenName id from search_tweets minus where screenName not in  (select screenName from users)"
 user.df <- dbGetQuery(con, sql)
 botUsers(user.df$id)
+
+logwarn("Empting queue table bot users...")
+sql <- "truncate table bot_users"
+dbSendQuery(con, sql)
 
 dbDisconnect(con)
 
