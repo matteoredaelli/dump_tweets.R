@@ -34,7 +34,7 @@ library(RMySQL)
 saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) {
     if (length(tweets) == 0) {
         logwarn("No tweets found!!")
-    } else if (!is.null(tweets$error)) {
+    } else if (!is.null(tweets[1]$error)) {
         logwarn(sprintf("ERROR: %s", tweets$error))
     } else {
         tweets_df = twListToDF(tweets)
