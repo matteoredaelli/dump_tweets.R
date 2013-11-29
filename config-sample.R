@@ -41,7 +41,7 @@ my.config <- list(
     ## #################################
     ## dump
     ## #################################
-    rdata.folder    = ".",
+    rdata.folder    = "output",
     last=1
     )
 
