@@ -33,7 +33,9 @@ dumpOneSearch <- function(record, folder) {
      tweets <- dbGetQuery(con, sql)
      filename <- sprintf("%s_%s.Rdata",
                          record$id, record$period)
-     filename <- file.path(folder, filename)
+     new.folder <- file.path(folder, record$id)
+     dir.create(new.folder, showWarnings = FALSE, recursive = FALSE)
+     filename <- file.path(new.folder, filename)
      logwarn(sprintf("Saving to file %s", filename))
      save(tweets, file=filename, compress="gzip")
 }
