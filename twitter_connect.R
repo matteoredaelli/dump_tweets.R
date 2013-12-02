@@ -40,7 +40,7 @@ botUsers <- function(users.id, include.followers=FALSE, include.friends=FALSE, n
         users.df <- do.call("rbind", users.ldf)
 
         logwarn("saving data to users table...")
-        dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE)
+        try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
 
         if (include.followers) {
            logwarn("Retriving followers...")
