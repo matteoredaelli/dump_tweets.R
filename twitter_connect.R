@@ -30,7 +30,7 @@ library(twitteR)
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, include.followers=FALSE, include.friends=FALSE, n=10000) {
+botUsers <- function(users.id, include.followers=FALSE, include.friends=FALSE, n=5000) {
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
