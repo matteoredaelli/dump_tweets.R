@@ -36,12 +36,12 @@ source("twitter_connect.R")
 
 logwarn("bot users from table bot_users")
 user.df <- dbGetQuery(con, "select id from bot_users")
-botUsers(user.df$id)
+botUsers(user.df$id, depth=0)
 
 logwarn("bot users from tweets")
 sql <- "select distinct screenName id from tweets minus where screenName not in  (select screenName from users)"
 user.df <- dbGetQuery(con, sql)
-botUsers(user.df$id)
+botUsers(user.df$id, depth=0)
 
 #
 dbDisconnect(con)

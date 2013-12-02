@@ -45,7 +45,7 @@ botUsersTimelines <- function(sleep=5) {
         record <- search.for[c,]
         logwarn(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
         try(botUserTimeline(record$id, sinceID=record$sinceid))
-        try(botUsers(record$id, include.followers=TRUE, include.friends=TRUE))
+        try(botUsers(record$id, depth=1, include.followers=TRUE, include.friends=TRUE))
         loginfo("Sleeping some seconds...")
         Sys.sleep(sleep)
     }
