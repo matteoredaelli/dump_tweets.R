@@ -30,7 +30,7 @@
 ## ############################################
 botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
     logwarn(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
-    tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts)
+    tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts, n=1000)
     saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
 }
 
@@ -45,6 +45,7 @@ botUsersTimelines <- function(sleep=5) {
         record <- search.for[c,]
         logwarn(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
         try(botUserTimeline(record$id, sinceID=record$sinceid))
+        try(botUsers(record$id, include.followers=TRUE, include.friends=TRUE))
         loginfo("Sleeping some seconds...")
         Sys.sleep(sleep)
     }
