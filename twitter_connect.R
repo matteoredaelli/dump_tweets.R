@@ -28,6 +28,35 @@
 library(twitteR)
 
 ## ############################################
+## botUsers
+## ############################################
+botUsers <- function(users.id, include.followers=FALSE, include.friends=FALSE, n=10000) {
+    if (length(users.id) == 0) {
+        logwarn("No users to be bot!!")
+    } else {
+        logwarn(sprintf("twitter lookup %d users", length(users.id)))
+        users <- lookupUsers(users.id)
+        users.ldf <- lapply(users, as.data.frame)
+        users.df <- do.call("rbind", users.ldf)
+
+        logwarn("saving data to users table...")
+        dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE)
+
+        if (include.followers) {
+           logwarn("Retriving followers...")
+           users.id <- lapply(users, function(u) u$getFollowerIDs(n=n))
+           logwarn("Bot followers...")
+           lapply(users.id, function(id) botUsers(id, include.followers=FALSE, include.friends=FALSE))
+        }
+        if (include.friends) {
+           logwarn("Retriving friends")
+           users.id <- lapply(users, function(u) u$getFriendIDs(n=n))
+           logwarn("Bot friends...")
+           lapply(users.id, function(id) botUsers(id, include.followers=FALSE, include.friends=FALSE))
+        }
+    }
+}
+## ############################################
 ## loading options
 ## ############################################
 

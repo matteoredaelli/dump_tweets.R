@@ -30,7 +30,7 @@
 ## ############################################
 botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
     logwarn(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
-    tweets <- userTimeline(id, n=1500, sinceID=sinceID, includeRts=includeRts)
+    tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts)
     saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
 }
 

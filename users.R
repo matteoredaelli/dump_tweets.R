@@ -25,22 +25,6 @@
 ##
 ##
 
-## ############################################
-## botUsers
-## ############################################
-botUsers <- function(users.id) {
-    if (length(users.id) == 0) {
-        logwarn("No users to be bot!!")
-    } else {
-        logwarn(sprintf("twitter lookup %d users", length(users.id)))
-        users <- lookupUsers(users.id)
-        users.ldf <- lapply(users, as.data.frame)
-        users.df <- do.call("rbind", users.ldf)
-
-        logwarn("saving data to users table...")
-        dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE)
-    }
-}
 
 ## ############################################
 ## loading options
@@ -59,5 +43,6 @@ sql <- "select distinct screenName id from tweets minus where screenName not in 
 user.df <- dbGetQuery(con, sql)
 botUsers(user.df$id)
 
+#
 dbDisconnect(con)
 
