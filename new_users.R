@@ -25,7 +25,6 @@
 ##
 ##
 
-chunk <- function(x,n=1000) split(x, factor(sort(rank(x)%%n)))
 
 ## ############################################
 ## loading options
@@ -38,7 +37,7 @@ source("twitter_connect.R")
 args <- commandArgs(TRUE)
 depth <- args[1]
 
-if (is.na(depth))
+if (is.null(depth))
   depth=0
 
 #logwarn("bot users from table bot_users")
@@ -46,19 +45,9 @@ if (is.na(depth))
 #botUsers(user.df$id, depth=0)
 
 logwarn(sprintf("bot users from tweets with depth=%s", depth))
-sql <- "select id from users"
+sql <- "select distinct screenName id from tweets minus where screenName not in  (select screenName from users)"
 user.df <- dbGetQuery(con, sql)
-tot.rows <- nrow(user.df)
-logwarn(sprintf("found %d users", tot.rows))
-
-if(tot.rows > 1000) {
-  split.by <- as.integer(tot.rows / 1000) + 1
-  logdebug(sprintf("splitting users in %d groups", split.by))
-  users.id.list <- chunk(user.df$id, split.by)
-  lapply(users.id.list, function(id.list) botUsers(id.list, depth=depth))
-} else {
-  botUsers(user.df$id, depth=depth)
-} 
+botUsers(user.df$id, depth=depth)
 
 #
 dbDisconnect(con)

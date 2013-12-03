@@ -30,7 +30,7 @@ library(twitteR)
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, depth=0, include.followers=FALSE, include.friends=FALSE, n=5000) {
+botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=5000) {
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
@@ -42,7 +42,7 @@ botUsers <- function(users.id, depth=0, include.followers=FALSE, include.friends
         logwarn("saving data to users table...")
         try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
 
-        logwarn(sprintf("depth=%d", depth))
+        logwarn(sprintf("depth=%s", depth))
         if (depth <= 0) {
            logwarn("no recursion")
            return(0)
@@ -54,6 +54,7 @@ botUsers <- function(users.id, depth=0, include.followers=FALSE, include.friends
            logwarn("Bot followers...")
            lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=FALSE, include.friends=FALSE))
         }
+        sleep(my.config$sleep.dump)
         if (include.friends) {
            logwarn("Retriving friends")
            users.id <- lapply(users, function(u) u$getFriendIDs(n=n))
