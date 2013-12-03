@@ -30,7 +30,7 @@ library(twitteR)
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=5000) {
+botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
@@ -44,22 +44,22 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
 
         logwarn(sprintf("depth=%s", depth))
         if (depth <= 0) {
-           logwarn("no recursion")
+           logwarn("end of recursion")
            return(0)
         }
         depth.new <- depth - 1
         if (include.followers) {
            logwarn("Retriving followers...")
-           users.id <- lapply(users, function(u) u$getFollowerIDs(n=n))
+           users.id <- try(lapply(users, function(u) u$getFollowerIDs(n=n)))
            logwarn("Bot followers...")
-           lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=FALSE, include.friends=FALSE))
+           try(lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=TRUE, include.friends=TRUE)))
         }
-        sleep(my.config$sleep.dump)
+        Sys.sleep(my.config$sleep.dump)
         if (include.friends) {
            logwarn("Retriving friends")
-           users.id <- lapply(users, function(u) u$getFriendIDs(n=n))
+           users.id <- try(lapply(users, function(u) u$getFriendIDs(n=n)))
            logwarn("Bot friends...")
-           lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=FALSE, include.friends=FALSE))
+           try(lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=FALSE, include.friends=FALSE)))
         }
         return(0)
     }

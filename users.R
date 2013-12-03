@@ -25,7 +25,7 @@
 ##
 ##
 
-chunk <- function(x,n=1000) split(x, factor(sort(rank(x)%%n)))
+chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 
 ## ############################################
 ## loading options
@@ -36,7 +36,7 @@ source("db_connect.R")
 source("twitter_connect.R")
 
 args <- commandArgs(TRUE)
-depth <- args[1]
+depth <- as.integer(args[1])
 
 if (is.na(depth))
   depth=0
@@ -51,9 +51,9 @@ user.df <- dbGetQuery(con, sql)
 tot.rows <- nrow(user.df)
 logwarn(sprintf("found %d users", tot.rows))
 
-if(tot.rows > 1000) {
-  split.by <- as.integer(tot.rows / 1000) + 1
-  logdebug(sprintf("splitting users in %d groups", split.by))
+if(!is.null(user.df) && tot.rows > 500) {
+  split.by <- as.integer(tot.rows / 500) + 1
+  logwarn(sprintf("splitting users in %d groups", split.by))
   users.id.list <- chunk(user.df$id, split.by)
   lapply(users.id.list, function(id.list) botUsers(id.list, depth=depth))
 } else {
