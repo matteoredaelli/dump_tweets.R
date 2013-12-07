@@ -30,7 +30,7 @@ library(twitteR)
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
+botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, include.timeline=FALSE, n=2000) {
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
@@ -39,7 +39,7 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
         users.ldf <- lapply(users, as.data.frame)
         users.df <- do.call("rbind", users.ldf)
 
-        logwarn("saving data to users table...")
+        logwarn("saving users to users table...")
         try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
 
         logwarn(sprintf("depth=%s", depth))

@@ -70,3 +70,6 @@ con <- dbConnect(MySQL(),
                  user=my.config$user,
                  pass=my.config$pass,
                  host=my.config$host)
+
+logwarn("using UTF8 code")
+dbSendQuery(con, "set names utf8")
