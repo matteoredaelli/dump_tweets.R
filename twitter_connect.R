@@ -32,7 +32,11 @@ chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 ## ############################################
 ## botUsers
 ## ############################################
+<<<<<<< HEAD
 botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
+=======
+botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, include.timeline=FALSE, n=2000) {
+>>>>>>> 446645f181b285e346e527b03df646aba0d56ac2
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
@@ -41,7 +45,7 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         users.ldf <- lapply(users, as.data.frame)
         users.df <- do.call("rbind", users.ldf)
 
-        logwarn("saving data to users table...")
+        logwarn("saving users to users table...")
         try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
 
         logwarn(sprintf("depth=%s", depth))
