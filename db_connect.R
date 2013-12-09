@@ -73,7 +73,3 @@ con <- dbConnect(MySQL(),
 
 logwarn("using UTF8 code")
 dbSendQuery(con, "set names utf8")
-<<<<<<< HEAD
-
-=======
->>>>>>> 446645f181b285e346e527b03df646aba0d56ac2
