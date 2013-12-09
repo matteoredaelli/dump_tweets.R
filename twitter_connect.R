@@ -32,11 +32,7 @@ chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 ## ############################################
 ## botUsers
 ## ############################################
-<<<<<<< HEAD
 botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
-=======
-botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, include.timeline=FALSE, n=2000) {
->>>>>>> 446645f181b285e346e527b03df646aba0d56ac2
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
@@ -66,12 +62,15 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
            friends.id <- try(lapply(users, function(u) u$getFriendIDs(n=n)))
         }
         users.id <- c(followers.id, friends.id)
-        logwarn(sprintf("Crawling &d followers and/or friends...", length(users.id)))
-        try(lapply(users.id, function(id) botUsers(id, 
+        if (length(users.id) == 0) {
+          logwarn("no followers and/or friends to be crawled")
+        } else {
+          logwarn(sprintf("Crawling &d followers and/or friends...", length(users.id)))
+          try(lapply(users.id, function(id) botUsers(id, 
                                                       depth=depth.new,
                                                       include.followers=include.followers,
                                                       include.friends=include.friends)))
-        return(0)
+        }
     }
 }
 
@@ -84,7 +83,7 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
     split.by <- as.integer(tot / 100) + 1
     logwarn(sprintf("splitting users in %d groups", split.by))
     users.id.list <- chunk(users.id, split.by)
-    lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.freinds, n=n))
+    lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.friends, n=n))
   } else {
     botFewUsers(users.id, depth=depth)
   } 
