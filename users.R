@@ -25,8 +25,6 @@
 ##
 ##
 
-chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
-
 ## ############################################
 ## loading options
 ## ############################################
@@ -48,18 +46,7 @@ if (is.na(depth))
 logwarn(sprintf("bot users from tweets with depth=%s", depth))
 sql <- "select id from users"
 user.df <- dbGetQuery(con, sql)
-tot.rows <- nrow(user.df)
-logwarn(sprintf("found %d users", tot.rows))
 
-if(!is.null(user.df) && tot.rows > 500) {
-  split.by <- as.integer(tot.rows / 500) + 1
-  logwarn(sprintf("splitting users in %d groups", split.by))
-  users.id.list <- chunk(user.df$id, split.by)
-  lapply(users.id.list, function(id.list) botUsers(id.list, depth=depth))
-} else {
-  botUsers(user.df$id, depth=depth)
-} 
-
-#
+botUsers(user.df$id, depth=depth)
 dbDisconnect(con)
 

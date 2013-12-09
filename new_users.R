@@ -37,7 +37,7 @@ source("twitter_connect.R")
 args <- commandArgs(TRUE)
 depth <- args[1]
 
-if (is.null(depth))
+if (is.null(depth) || is.na(depth))
   depth=0
 
 #logwarn("bot users from table bot_users")
@@ -45,7 +45,7 @@ if (is.null(depth))
 #botUsers(user.df$id, depth=0)
 
 logwarn(sprintf("bot users from tweets with depth=%s", depth))
-sql <- "select distinct screenName id from tweets minus where screenName not in  (select screenName from users)"
+sql <- "select distinct screenName id from tweets where screenName not in  (select screenName from users)"
 user.df <- dbGetQuery(con, sql)
 botUsers(user.df$id, depth=depth)
 

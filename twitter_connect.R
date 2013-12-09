@@ -27,10 +27,12 @@
 
 library(twitteR)
 
+chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
+
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
+botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
@@ -48,22 +50,42 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
            return(0)
         }
         depth.new <- depth - 1
+        followers.id <- friends.id <- c()
+
         if (include.followers) {
            logwarn("Retriving followers...")
-           users.id <- try(lapply(users, function(u) u$getFollowerIDs(n=n)))
-           logwarn("Bot followers...")
-           try(lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=TRUE, include.friends=TRUE)))
+           followers.id <- try(lapply(users, function(u) u$getFollowerIDs(n=n)))
         }
         Sys.sleep(my.config$sleep.dump)
         if (include.friends) {
            logwarn("Retriving friends")
-           users.id <- try(lapply(users, function(u) u$getFriendIDs(n=n)))
-           logwarn("Bot friends...")
-           try(lapply(users.id, function(id) botUsers(id, depth=depth.new, include.followers=FALSE, include.friends=FALSE)))
+           friends.id <- try(lapply(users, function(u) u$getFriendIDs(n=n)))
         }
+        users.id <- c(followers.id, friends.id)
+        logwarn(sprintf("Crawling &d followers and/or friends...", length(users.id)))
+        try(lapply(users.id, function(id) botUsers(id, 
+                                                      depth=depth.new,
+                                                      include.followers=include.followers,
+                                                      include.friends=include.friends)))
         return(0)
     }
 }
+
+## ############################################
+## botUsers
+## ############################################
+botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
+  tot <- length(users.id)
+  if(!is.null(users.id) && tot > 100) {
+    split.by <- as.integer(tot / 100) + 1
+    logwarn(sprintf("splitting users in %d groups", split.by))
+    users.id.list <- chunk(users.id, split.by)
+    lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.freinds, n=n))
+  } else {
+    botFewUsers(users.id, depth=depth)
+  } 
+}
+
 ## ############################################
 ## loading options
 ## ############################################
