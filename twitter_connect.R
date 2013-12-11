@@ -42,6 +42,11 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         users.ldf <- lapply(users, as.data.frame)
         users.df <- do.call("rbind", users.ldf)
 
+        users.count <- nrow(users.df)
+        if (is.null(users.df) || users.count == 0) {
+          logwarn("No users retreived. Something went wrong")
+          return(already.visited)
+        }
         logwarn("saving users to users table...")
         try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
 
@@ -56,20 +61,25 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         if (include.followers) {
            logwarn("Retriving followers...")
            for (i in 1:length(users)) {
-              logwarn(sprintf("Retriving followers for %s", users[[i]]$name))
-              some.id <- tryCatch({users[[i]]$getFollowerIDs()
-                                  }, warning = function(w) {
-                                   logwarn("warning!")
-                                   c()
-                                  }, error = function(e) {
-                                   logwarn("error!")
-                                   c()
-                                  }, finally = {
-                                   c()
-                                  })
-              logwarn(sprintf("found %s followers", length(some.id)))
-              followers.id <- c(followers.id, some.id)
-              Sys.sleep(my.config$sleep.dump)
+              logwarn(sprintf("followersCount=%d for user %s", users[[i]]$followersCount == 0, users[[i]]$name))
+              if( users[[i]]$followersCount == 0) 
+                 logwarn(sprintf("skipping getFollowers for user %s", users[[i]]$name))
+              else {
+                logwarn(sprintf("Retriving followers for user  %s", users[[i]]$name))
+                some.id <- tryCatch({users[[i]]$getFollowerIDs()
+                                    }, warning = function(w) {
+                                     logwarn("warning!")
+                                     c()
+                                    }, error = function(e) {
+                                     logwarn("error!")
+                                     c()
+                                    }, finally = {
+                                     c()
+                                    })
+                logwarn(sprintf("found %s followers", length(some.id)))
+                followers.id <- c(followers.id, some.id)
+                Sys.sleep(my.config$sleep.dump)
+            }
            }
            logwarn(sprintf("found %d followers", length(followers.id)))
         }
@@ -77,20 +87,25 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         if (include.friends) {
            logwarn("Retriving friends")
            for (i in 1:length(users)) {
-              logwarn(sprintf("Retriving friends for %s", users[[i]]$name))
-              some.id <- tryCatch({users[[i]]$getFriendIDs()
-                                  }, warning = function(w) {
-                                   logwarn("warning!")
-                                   c()
-                                  }, error = function(e) {
-                                   logwarn("error!")
-                                   c()
-                                  }, finally = {
-                                   c()
-                                  })
-              logwarn(sprintf("found %s friends", length(some.id)))
-              friends.id <- c(friends.id, some.id)
-              Sys.sleep(my.config$sleep.dump)
+              logwarn(sprintf("friendsCount=%d for user %s", users[[i]]$friendsCount == 0, users[[i]]$name))
+              if( users[[i]]$friendsCount == 0) 
+                 logwarn(sprintf("skipping getFriends for user %s", users[[i]]$name))
+              else {
+                logwarn(sprintf("Retriving friends for user %s", users[[i]]$name))
+                some.id <- tryCatch({users[[i]]$getFriendIDs()
+                                    }, warning = function(w) {
+                                     logwarn("warning!")
+                                     c()
+                                    }, error = function(e) {
+                                     logwarn("error!")
+                                     c()
+                                    }, finally = {
+                                     c()
+                                    })
+                logwarn(sprintf("found %s friends", length(some.id)))
+                friends.id <- c(friends.id, some.id)
+                Sys.sleep(my.config$sleep.dump)
+            }
            }
            logwarn(sprintf("found %d friends", length(friends.id)))
         }
