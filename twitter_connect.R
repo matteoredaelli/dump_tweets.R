@@ -95,7 +95,7 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
            logwarn(sprintf("found %d friends", length(friends.id)))
         }
 
-        users.id <- c(followers.id, friends.id)
+        users.id <- unique(c(followers.id, friends.id))
         if (is.null(users.id) || length(users.id) == 0) {
           logwarn("no followers and/or friends to be crawled")
         } else {
