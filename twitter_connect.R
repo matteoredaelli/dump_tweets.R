@@ -32,10 +32,11 @@ chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 ## ############################################
 ## botUsers
 ## ############################################
-botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
+botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, already.visited=c(), n=2000) {
     if (length(users.id) == 0) {
         logwarn("No users to be bot!!")
     } else {
+        already.visited <- c(users.id, already.visited)
         logwarn(sprintf("twitter lookup %d users", length(users.id)))
         users <- lookupUsers(users.id)
         users.ldf <- lapply(users, as.data.frame)
@@ -69,7 +70,9 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
           try(lapply(users.id, function(id) botUsers(id, 
                                                       depth=depth.new,
                                                       include.followers=include.followers,
-                                                      include.friends=include.friends)))
+                                                      include.friends=include.friends,
+                                                      already.visited = already.visited
+                                                      )))
         }
     }
 }
@@ -77,15 +80,18 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, n=2000) {
+botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, already.visited=c(), n=2000) {
+  tot.orig <- length(users.id)
+  users.id <- setdiff(users.id, already.visited)
   tot <- length(users.id)
+  logwarn(sprintf("Found in %d users, reduced to %d after removing already visited users", tot.orig, tot))
   if(!is.null(users.id) && tot > 100) {
     split.by <- as.integer(tot / 100) + 1
     logwarn(sprintf("splitting users in %d groups", split.by))
     users.id.list <- chunk(users.id, split.by)
-    lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.friends, n=n))
+    lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.friends, already.visited=already.visited, n=n))
   } else {
-    botFewUsers(users.id, depth=depth)
+    botFewUsers(users.id, depth=depth, already.visited=already.visited, n=n)
   } 
 }
 
