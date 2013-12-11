@@ -55,15 +55,48 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
 
         if (include.followers) {
            logwarn("Retriving followers...")
-           followers.id <- try(lapply(users, function(u) u$getFollowerIDs(n=n)))
+           for (i in 1:length(users)) {
+              logwarn(sprintf("Retriving followers for %s", users[[i]]$name))
+              some.id <- tryCatch({users[[i]]$getFollowerIDs()
+                                  }, warning = function(w) {
+                                   logwarn("warning!")
+                                   c()
+                                  }, error = function(e) {
+                                   logwarn("error!")
+                                   c()
+                                  }, finally = {
+                                   c()
+                                  })
+              logwarn(sprintf("found %s followers", length(some.id)))
+              followers.id <- c(followers.id, some.id)
+              Sys.sleep(my.config$sleep.dump)
+           }
+           logwarn(sprintf("found %d followers", length(followers.id)))
         }
         Sys.sleep(my.config$sleep.dump)
         if (include.friends) {
            logwarn("Retriving friends")
-           friends.id <- try(lapply(users, function(u) u$getFriendIDs(n=n)))
+           for (i in 1:length(users)) {
+              logwarn(sprintf("Retriving friends for %s", users[[i]]$name))
+              some.id <- tryCatch({users[[i]]$getFriendIDs()
+                                  }, warning = function(w) {
+                                   logwarn("warning!")
+                                   c()
+                                  }, error = function(e) {
+                                   logwarn("error!")
+                                   c()
+                                  }, finally = {
+                                   c()
+                                  })
+              logwarn(sprintf("found %s friends", length(some.id)))
+              friends.id <- c(friends.id, some.id)
+              Sys.sleep(my.config$sleep.dump)
+           }
+           logwarn(sprintf("found %d friends", length(friends.id)))
         }
+
         users.id <- c(followers.id, friends.id)
-        if (length(users.id) == 0) {
+        if (is.null(users.id) || length(users.id) == 0) {
           logwarn("no followers and/or friends to be crawled")
         } else {
           logwarn(sprintf("Crawling &d followers and/or friends...", length(users.id)))
@@ -91,7 +124,7 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
     users.id.list <- chunk(users.id, split.by)
     lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.friends, already.visited=already.visited, n=n))
   } else {
-    botFewUsers(users.id, depth=depth, already.visited=already.visited, n=n)
+    botFewUsers(users.id, depth=depth, include.followers=include.followers, include.friends=include.friends, already.visited=already.visited, n=n)
   } 
 }
 
