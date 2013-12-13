@@ -65,7 +65,7 @@ CREATE TABLE `users` (
   `favoritesCount` BIGINT UNSIGNED DEFAULT NULL,
   `friendsCount` BIGINT UNSIGNED DEFAULT NULL,
   `url` varchar(200),
-  `name` varchar(50),
+  `name` varchar(100),
   `created` datetime,
   `protected` BOOL DEFAULT NULL,
   `verified` BOOL DEFAULT NULL,
