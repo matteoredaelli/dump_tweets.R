@@ -61,10 +61,9 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         if (include.followers) {
            logwarn("Retriving followers...")
            for (i in 1:length(users)) {
-              logwarn(sprintf("followersCount=%d for user %s", users[[i]]$followersCount == 0, users[[i]]$name))
-              if( users[[i]]$followersCount == 0) 
-                 logwarn(sprintf("skipping getFollowers for user %s", users[[i]]$name))
-              else {
+              followers.count <- as.integer(users[[i]]$followersCount)
+              logwarn(sprintf("followersCount=%d for user %s", followers.count, users[[i]]$name))
+              if(followers.count > 0) {
                 logwarn(sprintf("Retriving followers for user  %s", users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFollowerIDs()
                                     }, warning = function(w) {
@@ -87,10 +86,9 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         if (include.friends) {
            logwarn("Retriving friends")
            for (i in 1:length(users)) {
-              logwarn(sprintf("friendsCount=%d for user %s", users[[i]]$friendsCount == 0, users[[i]]$name))
-              if( users[[i]]$friendsCount == 0) 
-                 logwarn(sprintf("skipping getFriends for user %s", users[[i]]$name))
-              else {
+              friends.cont <- as.integer(users[[i]]$friendsCount)
+              logwarn(sprintf("friendsCount=%d for user %s", friends.count, users[[i]]$name))
+              if(friends.count > 0) {
                 logwarn(sprintf("Retriving friends for user %s", users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFriendIDs()
                                     }, warning = function(w) {

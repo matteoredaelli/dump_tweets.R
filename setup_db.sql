@@ -11,6 +11,8 @@ CREATE TABLE search_for (
   `q` varchar(300) not null,
   `dump_period` varchar(10) not null default '%Y-%v',
   `sinceid` BIGINT UNSIGNED not NULL default 0,
+  `geocode` varchar(200),
+  `lang` varchar(20),
   `enabled` BOOL DEFAULT 1,
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (id)
