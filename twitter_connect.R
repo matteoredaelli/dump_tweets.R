@@ -67,10 +67,10 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
                 logwarn(sprintf("Retriving followers for user  %s", users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFollowerIDs()
                                     }, warning = function(w) {
-                                     logwarn("warning!")
+                                     logwarn(w)
                                      c()
                                     }, error = function(e) {
-                                     logwarn("error!")
+                                     logwarn(e)
                                      c()
                                     }, finally = {
                                      c()
@@ -86,16 +86,16 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         if (include.friends) {
            logwarn("Retriving friends")
            for (i in 1:length(users)) {
-              friends.cont <- as.integer(users[[i]]$friendsCount)
+              friends.count <- as.integer(users[[i]]$friendsCount)
               logwarn(sprintf("friendsCount=%d for user %s", friends.count, users[[i]]$name))
               if(friends.count > 0) {
                 logwarn(sprintf("Retriving friends for user %s", users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFriendIDs()
                                     }, warning = function(w) {
-                                     logwarn("warning!")
+                                     logwarn(w)
                                      c()
                                     }, error = function(e) {
-                                     logwarn("error!")
+                                     logwarn(e)
                                      c()
                                     }, finally = {
                                      c()

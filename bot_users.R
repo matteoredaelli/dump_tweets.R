@@ -63,14 +63,14 @@ botUsersTimelines <- function(sleep=5) {
 ## get options, using the spec as defined by the enclosed list.
 ## we read the options from the default: commandArgs(TRUE).
 spec = matrix(c(
-    ’verbose’, ’v’, 2, "integer",
-    ’help’ , ’h’, 0, "logical",
-    ’followers’ , ’f’, 0, "logical",
-    ’friends’ , ’F’, 0, "logical",
-    ’new’ , ’n’, 0, "logical",
-    ’existing’ , ’e’, 0, "logical",
-    ’timeline’ , ’t’, 0, "logical",
-    ’id’ , ’i’, 1, "character"
+    'verbose', 'v', 2, "integer",
+    'help' , 'h', 0, "logical",
+    'followers' , 'f', 0, "logical",
+    'friends' , 'F', 0, "logical",
+    'new' , 'n', 0, "logical",
+    'existing' , 'e', 0, "logical",
+    'timeline' , 't', 0, "logical",
+    'id' , 'i', 1, "character"
     ), byrow=TRUE, ncol=4);
 
 opt = getopt(spec);
