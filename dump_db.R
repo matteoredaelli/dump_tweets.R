@@ -26,7 +26,7 @@ dumpOneSearch <- function(record, folder) {
      logwarn(sprintf("Dumping tweets for search %s for the period %s", 
                      record$id,
                      record$dump_date_filter))
-     sql <- sprintf("select t.*,r.geocode, r.lang lang_twitter from tweets t inner join search_results r on r.tweet_id=t.id where search_for_id='%s' and date_format(t.created, '%s') =  '%s'", 
+     sql <- sprintf("select t.*, s.geocode, s.lang lang_twitter from tweets t inner join search_results r on r.tweet_id=t.id inner join search_for s on r.search_for_id = s.id where search_for_id='%s' and date_format(t.created, '%s') =  '%s'", 
                     record$id,
                     record$dump_period,
                     record$period)

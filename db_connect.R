@@ -41,6 +41,8 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) 
         logwarn(sprintf("Found %d tweets", nrow(tweets_df)))
         
         tweets_df$text <- unlist(lapply(tweets_df$text, function(t) iconv(t, to="UTF8")))
+        #tweets_df$lang <- textcat(tweets$text, ECIMCI_profiles)
+
 
         maxID <- max(tweets_df$id)
         logwarn(sprintf("maxID=%s", maxID))

@@ -26,6 +26,7 @@
 ##
 
 library(twitteR)
+library(textcat)
 
 chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 
