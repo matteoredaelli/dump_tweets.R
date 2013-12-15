@@ -10,7 +10,7 @@ CREATE TABLE search_for (
   `mail` varchar(300) not null,
   `q` varchar(300) not null,
   `dump_period` varchar(10) not null default '%Y-%v',
-  `sinceid` BIGINT UNSIGNED not NULL default 0,
+  `sinceid` varchar(30) not NULL default 0,
   `geocode` varchar(200),
   `lang` varchar(20),
   `enabled` BOOL DEFAULT 1,
@@ -29,7 +29,7 @@ insert into search_for (id, mail, q) values
 DROP TABLE IF EXISTS search_results;
 CREATE TABLE search_results (
   `search_for_id` varchar(30) not null,
-  `tweet_id` BIGINT UNSIGNED not NULL,
+  `tweet_id` varchar(30) not NULL,
    PRIMARY KEY (search_for_id, tweet_id)
 );
 
@@ -41,9 +41,9 @@ CREATE TABLE tweets (
   `replyToSN` varchar(50),
   `created` datetime,
   `truncated` tinyint(4) DEFAULT NULL,
-  `replyToSID` BIGINT UNSIGNED not NULL,
-  `id` BIGINT UNSIGNED not NULL,
-  `replyToUID` BIGINT UNSIGNED not NULL,
+  `replyToSID` varchar(30) not NULL,
+  `id` varchar(30) not NULL,
+  `replyToUID` varchar(30) not NULL,
   `statusSource` varchar(300),
   `screenName` varchar(50),
   `retweetCount` float DEFAULT NULL,
@@ -52,6 +52,8 @@ CREATE TABLE tweets (
   `longitude` float,
   `latitude` float,
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `lang` varchar(2),
+  `sentiment` tinyint(4),
    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -71,7 +73,7 @@ CREATE TABLE `users` (
   `verified` BOOL DEFAULT NULL,
   `screenName` varchar(50),
   `location` varchar(200),
-  `id` BIGINT UNSIGNED,
+  `id` varchar(30),
   `listedCount` double DEFAULT NULL,
   `followRequestSent` BOOL DEFAULT NULL,
   `profileImageUrl` varchar(200),
@@ -83,7 +85,7 @@ DROP TABLE IF EXISTS bot_users;
 CREATE TABLE bot_users (
   `id` varchar(30) not null,
   `mail` varchar(300) not null,
-  `sinceid` BIGINT UNSIGNED not NULL default 0,
+  `sinceid` varchar(30) not NULL default 0,
   `enabled` BOOL DEFAULT 1,
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,	
    PRIMARY KEY (id)
