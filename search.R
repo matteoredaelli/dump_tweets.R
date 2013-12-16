@@ -33,7 +33,7 @@
 searchOne <- function(id, q, sinceID, geocode=NULL, lang=NULL) {
     if( is.na(geocode) || geocode=='') geocode <- NULL
     if( is.na(lang) || lang=='') lang <- NULL
-    logwarn(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
+    loginfo(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
     tweets <- searchTwitter(q, n=1500, sinceID=sinceID, geocode=geocode, lang=lang)
 
     saveTweetsAndSinceID(id, tweets, sinceID.table="search_for", results.table="search_results")
@@ -43,12 +43,12 @@ searchOne <- function(id, q, sinceID, geocode=NULL, lang=NULL) {
 ## searchFor
 ## ############################################
 searchFor <- function(sleep=5) {
-    logwarn("Starting searches...")
+    loginfo("Starting searches...")
     search.for <- dbGetQuery(con, "select * from search_for where enabled=1")
 
     for (c in 1:nrow(search.for)) {
         record <- search.for[c,]
-        logwarn(sprintf("ID=%s, q=%s, SINCEID=%s", record$id, record$q, record$sinceid))
+        loginfo(sprintf("ID=%s, q=%s, SINCEID=%s", record$id, record$q, record$sinceid))
         try(searchOne(record$id,
                       record$q, 
                       sinceID=record$sinceid,

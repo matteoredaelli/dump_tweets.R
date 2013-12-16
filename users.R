@@ -31,7 +31,7 @@ source("begin.R")
 ## botUserTimeline
 ## ############################################
 botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
-    logwarn(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
+    loginfo(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
     tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts, n=1000)
     saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
 }
@@ -39,13 +39,13 @@ botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
 ## ############################################
 ## botUsersTimelines
 ## ############################################
-botUsersTimelines <- function(depth=1) {
-    logwarn("Starting bot timelines...")
+botUsersTimelines <- function(depth=0) {
+    loginfo("Starting bot timelines...")
     search.for <- dbGetQuery(con, "select * from bot_users where enabled=1")
 
     for (c in 1:nrow(search.for)) {
         record <- search.for[c,]
-        logwarn(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
+        loginfo(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
         try(botUserTimeline(record$id, sinceID=record$sinceid))
         try(botUsers(record$id, depth=depth, include.followers=TRUE, include.friends=TRUE))
         loginfo("Sleeping some seconds...")
@@ -57,7 +57,7 @@ botUsersTimelines <- function(depth=1) {
 ## botNewUsers
 ## ############################################
 botNewUsers <- function(depth=0, sleep=5) {
-  logwarn(sprintf("bot new users from tweets with depth=%s", depth))
+  loginfo(sprintf("bot new users from tweets with depth=%s", depth))
   sql <- "select distinct screenName id from tweets where screenName not in  (select screenName from users)"
   user.df <- dbGetQuery(con, sql)
   botUsers(user.df$id, depth=depth)
@@ -99,7 +99,7 @@ if ( is.null(opt$timeline ) ) { opt$timeline = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 
 if( opt$timeline )
-   botUsersTimelines()
+   botUsersTimelines(depth=opt$depth)
 
 if( opt$new )
    botNewUsers(depth=opt$depth)

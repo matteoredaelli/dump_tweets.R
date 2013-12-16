@@ -1,5 +1,3 @@
-#!/usr/bin/env Rscript
-
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
 ##    the Free Software Foundation, either version 3 of the License, or
@@ -38,7 +36,7 @@ source("twitter.R")
 ## ############################################
 ## loading options
 ## ############################################
-logwarn(sprintf("Connecting to database=%s, host=%s with user=%s",
+loginfo(sprintf("Connecting to database=%s, host=%s with user=%s",
                 my.config$db, my.config$host, my.config$user))
 
 con <- dbConnect(MySQL(),
@@ -47,5 +45,5 @@ con <- dbConnect(MySQL(),
                  pass=my.config$pass,
                  host=my.config$host)
 
-logwarn("using UTF8 code")
+loginfo("using UTF8 code")
 dbSendQuery(con, "set names utf8")

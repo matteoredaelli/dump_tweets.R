@@ -23,7 +23,7 @@
 ## dumpOneSearch
 ## ############################################
 dumpOneSearch <- function(record, folder) {
-     logwarn(sprintf("Dumping tweets for search %s for the period %s", 
+     loginfo(sprintf("Dumping tweets for search %s for the period %s", 
                      record$id,
                      record$dump_date_filter))
      sql <- sprintf("select t.*, s.geocode, s.lang lang_twitter from tweets t inner join search_results r on r.tweet_id=t.id inner join search_for s on r.search_for_id = s.id where search_for_id='%s' and date_format(t.created, '%s') =  '%s'", 
@@ -36,7 +36,7 @@ dumpOneSearch <- function(record, folder) {
      new.folder <- file.path(folder, record$id)
      dir.create(new.folder, showWarnings = FALSE, recursive = FALSE)
      filename <- file.path(new.folder, filename)
-     logwarn(sprintf("Saving to file %s", filename))
+     loginfo(sprintf("Saving to file %s", filename))
      save(tweets, file=filename, compress="gzip")
 }
 
@@ -44,7 +44,7 @@ dumpOneSearch <- function(record, folder) {
 ## dumpSearches
 ## ############################################
 dumpSearches <- function(folder) {
-    logwarn("Dumping searches...")
+    loginfo("Dumping searches...")
     search.for <- dbGetQuery(con, "select *, date_format(CURDATE(), dump_period) period from search_for where enabled=1")
 
     for (c in 1:nrow(search.for)) {
@@ -57,11 +57,11 @@ dumpSearches <- function(folder) {
 ## dumpUsers
 ## ############################################
 dumpUsers <- function(folder) {
-    logwarn("Dumping users...")
+    loginfo("Dumping users...")
     users <- dbGetQuery(con, "select * from users")
 
     filename <- file.path(folder, "users.Rdata")
-    logwarn(sprintf("Saving to file %s", filename))
+    loginfo(sprintf("Saving to file %s", filename))
     save(users, file=filename, compress="gzip")
 }
 
@@ -69,7 +69,7 @@ dumpUsers <- function(folder) {
 ## dumpStatsDB
 ## ############################################
 dumpStatsDB <- function(folder) {
-    logwarn("Dumping statistics...")
+    loginfo("Dumping statistics...")
     stats.db <- dbGetQuery(con, "select * from stats_db")
     filename <- file.path(folder, "stats.Rdata")
     save(stats.db, file=filename, compress="gzip")

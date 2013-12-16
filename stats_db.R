@@ -23,7 +23,7 @@
 ## StatsDB
 ## ############################################
 StatsDB <- function(folder) {
-    logwarn("Dumping statistics...")
+    loginfo("Dumping statistics...")
     records <- dbGetQuery(con, "select count(*) from users")
     users <- as.integer(records[1][1])
     records <- dbGetQuery(con, "select count(*) from tweets")
@@ -36,7 +36,7 @@ StatsDB <- function(folder) {
     
     sql <- sprintf("insert into stats_db (day, users, tweets, searches) values ('%s', '%d', '%d', '%d')",
                    format(Sys.Date(), "%Y%m%d"), users, tweets, searches)
-    logwarn(sql)
+    loginfo(sql)
     dbSendQuery(con, sql)
     return(0)
 }

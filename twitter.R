@@ -1,5 +1,3 @@
-#!/usr/bin/env Rscript
-
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
 ##    the Free Software Foundation, either version 3 of the License, or
@@ -217,12 +215,12 @@ normalizeUTF8text <- function(testo, ...){
 ## ############################################
 saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) {
     if (length(tweets) == 0) {
-        logwarn("No tweets found!!")
+        loginfo("No tweets found!!")
     } else if (!is.null(tweets[1]$error)) {
-        logwarn(sprintf("ERROR: %s", tweets$error))
+        loginfo(sprintf("ERROR: %s", tweets$error))
     } else {
         tweets_df = twListToDF(tweets)
-        logwarn(sprintf("Found %d tweets", nrow(tweets_df)))
+        loginfo(sprintf("Found %d tweets", nrow(tweets_df)))
         
         #tweets_df$text <- unlist(lapply(tweets_df$text, function(t) iconv(t, to="UTF8")))
         tweets_df$text <- iconv(tweets_df$text, to="UTF8")
@@ -233,20 +231,20 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) 
 
 
         maxID <- max(tweets_df$id)
-        logwarn(sprintf("maxID=%s", maxID))
+        loginfo(sprintf("maxID=%s", maxID))
 
-        logwarn("Saving data to tweet table...")
+        loginfo("Saving data to tweet table...")
         dbWriteTable(con, "tweets", tweets_df, row.names=FALSE, append=TRUE)
 
         if (!is.null(results.table)) {
-            logwarn(sprintf("saving data to %s table...", results.table))
+            loginfo(sprintf("saving data to %s table...", results.table))
             results <- data.frame(search_for_id=id, tweet_id=tweets_df$id)
             dbWriteTable(con, results.table, results, row.names=FALSE, append=TRUE)
         }
         
-        logwarn(sprintf("updating table %s...", sinceID.table))
+        loginfo(sprintf("updating table %s...", sinceID.table))
         sql <- sprintf("update %s set sinceid=%s where id='%s'", sinceID.table, maxID, id)
-        logwarn(sql)
+        loginfo(sql)
         dbSendQuery(con, sql)
     }
 }
@@ -256,85 +254,86 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) 
 ## ############################################
 botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, already.visited=c(), n=2000) {
     if (length(users.id) == 0) {
-        logwarn("No users to be bot!!")
+        loginfo("No users to be bot!!")
     } else {
         already.visited <- c(users.id, already.visited)
-        logwarn(sprintf("twitter lookup %d users", length(users.id)))
+        loginfo(sprintf("twitter lookup %d users", length(users.id)))
+        logwarn(sprintf("twitter lookup %s users", paste(users.id, collapse=", ")))
         users <- lookupUsers(users.id)
         users.ldf <- lapply(users, as.data.frame)
         users.df <- do.call("rbind", users.ldf)
 
         users.count <- nrow(users.df)
         if (is.null(users.df) || users.count == 0) {
-          logwarn("No users retreived. Something went wrong")
+          loginfo("No users retreived. Something went wrong")
           return(already.visited)
         }
-        logwarn("saving users to users table...")
+        loginfo("saving users to users table...")
         try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
 
-        logwarn(sprintf("depth=%s", depth))
+        loginfo(sprintf("depth=%s", depth))
         if (depth <= 0) {
-           logwarn("end of recursion")
+           loginfo("end of recursion")
            return(0)
         }
         depth.new <- depth - 1
         followers.id <- friends.id <- c()
 
         if (include.followers) {
-           logwarn("Retriving followers...")
+           loginfo("Retriving followers...")
            for (i in 1:length(users)) {
               followers.count <- as.integer(users[[i]]$followersCount)
-              logwarn(sprintf("followersCount=%d for user %s", followers.count, users[[i]]$name))
+              loginfo(sprintf("followersCount=%d for user %s", followers.count, users[[i]]$name))
               if(followers.count > 0) {
-                logwarn(sprintf("Retriving followers for user  %s", users[[i]]$name))
+                loginfo(sprintf("Retriving followers for user  %s", users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFollowerIDs()
                                     }, warning = function(w) {
-                                     logwarn(w)
+                                     loginfo(w)
                                      c()
                                     }, error = function(e) {
-                                     logwarn(e)
+                                     loginfo(e)
                                      c()
                                     }, finally = {
                                      c()
                                     })
-                logwarn(sprintf("found %s followers", length(some.id)))
+                loginfo(sprintf("found %s followers", length(some.id)))
                 followers.id <- c(followers.id, some.id)
                 Sys.sleep(my.config$sleep.dump)
             }
            }
-           logwarn(sprintf("found %d followers", length(followers.id)))
+           loginfo(sprintf("found %d followers", length(followers.id)))
         }
         Sys.sleep(my.config$sleep.dump)
         if (include.friends) {
-           logwarn("Retriving friends")
+           loginfo("Retriving friends")
            for (i in 1:length(users)) {
               friends.count <- as.integer(users[[i]]$friendsCount)
-              logwarn(sprintf("friendsCount=%d for user %s", friends.count, users[[i]]$name))
+              loginfo(sprintf("friendsCount=%d for user %s", friends.count, users[[i]]$name))
               if(friends.count > 0) {
-                logwarn(sprintf("Retriving friends for user %s", users[[i]]$name))
+                loginfo(sprintf("Retriving friends for user %s", users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFriendIDs()
                                     }, warning = function(w) {
-                                     logwarn(w)
+                                     loginfo(w)
                                      c()
                                     }, error = function(e) {
-                                     logwarn(e)
+                                     loginfo(e)
                                      c()
                                     }, finally = {
                                      c()
                                     })
-                logwarn(sprintf("found %s friends", length(some.id)))
+                loginfo(sprintf("found %s friends", length(some.id)))
                 friends.id <- c(friends.id, some.id)
                 Sys.sleep(my.config$sleep.dump)
             }
            }
-           logwarn(sprintf("found %d friends", length(friends.id)))
+           loginfo(sprintf("found %d friends", length(friends.id)))
         }
 
         users.id <- unique(c(followers.id, friends.id))
         if (is.null(users.id) || length(users.id) == 0) {
-          logwarn("no followers and/or friends to be crawled")
+          loginfo("no followers and/or friends to be crawled")
         } else {
-          logwarn(sprintf("Crawling &d followers and/or friends...", length(users.id)))
+          loginfo(sprintf("Crawling &d followers and/or friends...", length(users.id)))
           try(lapply(users.id, function(id) botUsers(id, 
                                                       depth=depth.new,
                                                       include.followers=include.followers,
@@ -352,10 +351,10 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
   tot.orig <- length(users.id)
   users.id <- setdiff(users.id, already.visited)
   tot <- length(users.id)
-  logwarn(sprintf("Found in %d users, reduced to %d after removing already visited users", tot.orig, tot))
+  loginfo(sprintf("Found in %d users, reduced to %d after removing already visited users", tot.orig, tot))
   if(!is.null(users.id) && tot > 100) {
     split.by <- as.integer(tot / 100) + 1
-    logwarn(sprintf("splitting users in %d groups", split.by))
+    loginfo(sprintf("splitting users in %d groups", split.by))
     users.id.list <- chunk(users.id, split.by)
     lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.friends, already.visited=already.visited, n=n))
   } else {
@@ -367,7 +366,7 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
 ## loading options
 ## ############################################
 
-logwarn("Connecting to TWITTER...")
+loginfo("Connecting to TWITTER...")
           
 setup_twitter_oauth(
     consumer_key = 'm3GtR24P1biGReMyRdffg',
