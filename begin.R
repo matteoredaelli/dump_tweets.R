@@ -26,42 +26,11 @@
 ##
 ##
 
+library(logging)
 library(RMySQL)
 
-## ############################################
-## saveTweetsAndSinceID
-## ############################################
-saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) {
-    if (length(tweets) == 0) {
-        logwarn("No tweets found!!")
-    } else if (!is.null(tweets[1]$error)) {
-        logwarn(sprintf("ERROR: %s", tweets$error))
-    } else {
-        tweets_df = twListToDF(tweets)
-        logwarn(sprintf("Found %d tweets", nrow(tweets_df)))
-        
-        tweets_df$text <- unlist(lapply(tweets_df$text, function(t) iconv(t, to="UTF8")))
-        #tweets_df$lang <- textcat(tweets$text, ECIMCI_profiles)
+source("config.R")
 
-
-        maxID <- max(tweets_df$id)
-        logwarn(sprintf("maxID=%s", maxID))
-
-        logwarn("Saving data to tweet table...")
-        dbWriteTable(con, "tweets", tweets_df, row.names=FALSE, append=TRUE)
-
-        if (!is.null(results.table)) {
-            logwarn(sprintf("saving data to %s table...", results.table))
-            results <- data.frame(search_for_id=id, tweet_id=tweets_df$id)
-            dbWriteTable(con, results.table, results, row.names=FALSE, append=TRUE)
-        }
-        
-        logwarn(sprintf("updating table %s...", sinceID.table))
-        sql <- sprintf("update %s set sinceid=%s where id='%s'", sinceID.table, maxID, id)
-        logwarn(sql)
-        dbSendQuery(con, sql)
-    }
-}
 
 ## ############################################
 ## loading options

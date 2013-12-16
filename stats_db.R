@@ -45,7 +45,6 @@ StatsDB <- function(folder) {
 ## loading options
 ## ############################################
 
-source("config.R")
-source("db_connect.R")
+source("begin.R")
 StatsDB(my.config$rdata.folder)
 dbDisconnect(con)

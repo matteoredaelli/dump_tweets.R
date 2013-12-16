@@ -64,9 +64,8 @@ searchFor <- function(sleep=5) {
 ## loading options
 ## ############################################
 
-source("config.R")
-source("db_connect.R")
-source("twitter_connect.R")
+source("begin.R")
+source("twitter.R")
 searchFor(my.config$sleep.dump)
 dbDisconnect(con)
 

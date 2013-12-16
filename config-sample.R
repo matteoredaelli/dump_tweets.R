@@ -20,8 +20,6 @@
 ##
 ##
 
-library(logging)
-
 my.config <- list(
     ## #################################
     ## database

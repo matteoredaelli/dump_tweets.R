@@ -79,8 +79,7 @@ dumpStatsDB <- function(folder) {
 ## loading options
 ## ############################################
 
-source("config.R")
-source("db_connect.R")
+source("begin.R")
 dumpSearches(my.config$rdata.folder)
 dumpUsers(my.config$rdata.folder)
 dumpStatsDB(my.config$rdata.folder)

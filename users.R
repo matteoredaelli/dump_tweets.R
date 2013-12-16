@@ -16,7 +16,7 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-11-27: matteo redaelli: first release
+## 2013-1-27: matteo redaelli: first release
 ##
 
 ##################################################################
@@ -25,28 +25,87 @@
 ##
 ##
 
+library(getopt)
+source("begin.R")
+source("twitter.R")
+
+## ############################################
+## botUserTimeline
+## ############################################
+botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
+    logwarn(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
+    tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts, n=1000)
+    saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
+}
+
+## ############################################
+## botUsersTimelines
+## ############################################
+botUsersTimelines <- function(depth=1) {
+    logwarn("Starting bot timelines...")
+    search.for <- dbGetQuery(con, "select * from bot_users where enabled=1")
+
+    for (c in 1:nrow(search.for)) {
+        record <- search.for[c,]
+        logwarn(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
+        try(botUserTimeline(record$id, sinceID=record$sinceid))
+        try(botUsers(record$id, depth=depth, include.followers=TRUE, include.friends=TRUE))
+        loginfo("Sleeping some seconds...")
+        Sys.sleep(5)
+    }
+}
+
+## ############################################
+## botNewUsers
+## ############################################
+botNewUsers <- function(depth=0, sleep=5) {
+  logwarn(sprintf("bot new users from tweets with depth=%s", depth))
+  sql <- "select distinct screenName id from tweets where screenName not in  (select screenName from users)"
+  user.df <- dbGetQuery(con, sql)
+  botUsers(user.df$id, depth=depth)
+}
+
 ## ############################################
 ## loading options
 ## ############################################
 
-source("config.R")
-source("db_connect.R")
-source("twitter_connect.R")
+## get options, using the spec as defined by the enclosed list.
+## we read the options from the default: commandArgs(TRUE).
+spec = matrix(c(
+    'verbose',      'v', 2, "integer",
+    'help',         'h', 0, "logical",
+    'followers',    'f', 0, "logical",
+    'friends',      'F', 0, "logical",
+    'depth',        'd', 2, "integer",
+    'new',          'n', 0, "logical",
+    'existing',     'e', 0, "logical",
+    'timeline',     't', 0, "logical",
+    'id',           'i', 1, "character"
+    ), byrow=TRUE, ncol=4);
 
-args <- commandArgs(TRUE)
-depth <- as.integer(args[1])
+opt = getopt(spec);
+## if help was asked for print a friendly message
+## and exit with a non-zero error code
+if ( !is.null(opt$help) ) {
+    cat(getopt(spec, usage=TRUE));
+    q(status=1);
+}
+## set some reasonable defaults for the options that are needed,
+## but were not specified.
+if ( is.null(opt$depth ) ) { opt$depth = 0 }
+if ( is.null(opt$new ) ) { opt$new = FALSE }
+if ( is.null(opt$existing ) ) { opt$existing = FALSE }
+if ( is.null(opt$followers ) ) { opt$followers = FALSE }
+if ( is.null(opt$friends ) ) { opt$friends = FALSE }
+if ( is.null(opt$timeline ) ) { opt$timeline = FALSE }
+if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 
-if (is.na(depth))
-  depth=0
+if( opt$timeline )
+   botUsersTimelines()
 
-#logwarn("bot users from table bot_users")
-#user.df <- dbGetQuery(con, "select id from bot_users")
-#botUsers(user.df$id, depth=0)
+if( opt$new )
+   botNewUsers(depth=opt$depth)
 
-logwarn(sprintf("bot users from tweets with depth=%s", depth))
-sql <- "select id from users"
-user.df <- dbGetQuery(con, sql)
 
-botUsers(user.df$id, depth=depth)
 dbDisconnect(con)
 
