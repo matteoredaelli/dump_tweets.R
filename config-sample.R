@@ -42,5 +42,3 @@ my.config <- list(
     rdata.folder    = "output",
     last=1
     )
-
-basicConfig()

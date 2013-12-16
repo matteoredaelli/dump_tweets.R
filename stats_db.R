@@ -47,4 +47,4 @@ StatsDB <- function(folder) {
 
 source("begin.R")
 StatsDB(my.config$rdata.folder)
-dbDisconnect(con)
+source("end.R")

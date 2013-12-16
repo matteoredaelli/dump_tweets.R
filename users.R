@@ -25,9 +25,7 @@
 ##
 ##
 
-library(getopt)
 source("begin.R")
-source("twitter.R")
 
 ## ############################################
 ## botUserTimeline
@@ -107,5 +105,5 @@ if( opt$new )
    botNewUsers(depth=opt$depth)
 
 
-dbDisconnect(con)
+source("end.R")
 

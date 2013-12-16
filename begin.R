@@ -27,9 +27,12 @@
 ##
 
 library(logging)
+library(getopt)
 library(RMySQL)
 
 source("config.R")
+basicConfig()
+source("twitter.R")
 
 
 ## ############################################

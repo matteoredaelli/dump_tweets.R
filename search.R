@@ -65,7 +65,5 @@ searchFor <- function(sleep=5) {
 ## ############################################
 
 source("begin.R")
-source("twitter.R")
 searchFor(my.config$sleep.dump)
-dbDisconnect(con)
-
+source("end.R")
