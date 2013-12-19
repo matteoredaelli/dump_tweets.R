@@ -39,7 +39,7 @@ botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
 ## ############################################
 ## botUsersTimelines
 ## ############################################
-botUsersTimelines <- function(depth=0) {
+botUsersTimelines <- function(depth=0, include.followers=TRUE, include.friends=TRUE) {
     loginfo("Starting bot timelines...")
     search.for <- dbGetQuery(con, "select * from bot_users where enabled=1")
 
@@ -47,23 +47,34 @@ botUsersTimelines <- function(depth=0) {
         record <- search.for[c,]
         loginfo(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
         try(botUserTimeline(record$id, sinceID=record$sinceid))
-        try(botUsers(record$id, depth=depth, include.followers=TRUE, include.friends=TRUE))
+        try(botUsers(record$id, depth=depth, include.followers=include.followers, include.friends=include.friends))
         loginfo("Sleeping some seconds...")
         Sys.sleep(5)
     }
 }
 
+
 ## ############################################
-## botNewUsers
+## botExistingUsers
 ## ############################################
-botNewUsers <- function(depth=0, sleep=5) {
-  loginfo(sprintf("bot new users from tweets with depth=%s", depth))
-  sql <- "select distinct screenName id from tweets where screenName not in  (select screenName from users)"
+botExistingUsers <- function(depth=0, sleep=5, include.followers=TRUE, include.friends=TRUE) {
+  loginfo(sprintf("bot existing users with depth=%s", depth))
+  sql <- "select id from users"
   user.df <- dbGetQuery(con, sql)
-  botUsers(user.df$id, depth=depth)
+  botUsers(user.df$id, depth=depth, include.followers=include.followers, include.friends=include.friends)
 }
 
 ## ############################################
+## botNewUsers
+## ############################################
+botNewUsers <- function(depth=0, sleep=5, include.followers=TRUE, include.friends=TRUE) {
+  loginfo(sprintf("bot new users from tweets with depth=%s", depth))
+  sql <- "select distinct screenName id from tweets where screenName not in  (select screenName from users)"
+  user.df <- dbGetQuery(con, sql)
+  botUsers(user.df$id, depth=depth, include.followers=include.followers, include.friends=include.friends)
+}
+
+## ###########################################
 ## loading options
 ## ############################################
 
@@ -99,10 +110,13 @@ if ( is.null(opt$timeline ) ) { opt$timeline = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 
 if( opt$timeline )
-   botUsersTimelines(depth=opt$depth)
+   botUsersTimelines(depth=opt$depth, include.followers=opt$followers, include.friends=opt$friends)
 
 if( opt$new )
-   botNewUsers(depth=opt$depth)
+   botNewUsers(depth=opt$depth, include.followers=opt$followers, include.friends=opt$friends)
+
+if( opt$existing )
+   botExistingUsers(depth=opt$depth, include.followers=opt$followers, include.friends=opt$friends)
 
 
 source("end.R")

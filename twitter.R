@@ -257,8 +257,8 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         loginfo("No users to be bot!!")
     } else {
         already.visited <- c(users.id, already.visited)
-        loginfo(sprintf("twitter lookup %d users", length(users.id)))
-        logwarn(sprintf("twitter lookup %s users", paste(users.id, collapse=", ")))
+        loginfo(sprintf("twitter lookup for %d users", length(users.id)))
+        logwarn(sprintf("twitter lookup users: %s", paste(users.id, collapse=", ")))
         users <- lookupUsers(users.id)
         users.ldf <- lapply(users, as.data.frame)
         users.df <- do.call("rbind", users.ldf)
@@ -283,9 +283,14 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
            loginfo("Retriving followers...")
            for (i in 1:length(users)) {
               followers.count <- as.integer(users[[i]]$followersCount)
-              loginfo(sprintf("followersCount=%d for user %s", followers.count, users[[i]]$name))
+              loginfo(sprintf("followersCount=%d for user %s - %s",
+                              followers.count,
+                              users[[i]]$id,
+                              users[[i]]$name))
               if(followers.count > 0) {
-                loginfo(sprintf("Retriving followers for user  %s", users[[i]]$name))
+                loginfo(sprintf("Retriving followers for user %s - %s",
+                                users[[i]]$id,
+                                users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFollowerIDs()
                                     }, warning = function(w) {
                                      loginfo(w)
@@ -308,9 +313,14 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
            loginfo("Retriving friends")
            for (i in 1:length(users)) {
               friends.count <- as.integer(users[[i]]$friendsCount)
-              loginfo(sprintf("friendsCount=%d for user %s", friends.count, users[[i]]$name))
+              loginfo(sprintf("friendsCount=%d for user %s - %s", 
+                              friends.count,
+                              users[[i]]$id,
+                              users[[i]]$name))
               if(friends.count > 0) {
-                loginfo(sprintf("Retriving friends for user %s", users[[i]]$name))
+                loginfo(sprintf("Retriving friends for user %s - %s",
+                                users[[i]]$id,
+                                users[[i]]$name))
                 some.id <- tryCatch({users[[i]]$getFriendIDs()
                                     }, warning = function(w) {
                                      loginfo(w)
