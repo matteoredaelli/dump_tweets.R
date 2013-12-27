@@ -6,4 +6,6 @@ config.R
 # Example code in package build process
 *-Ex.R
 *.swp
+*.png
+*.jpg
 \#*#

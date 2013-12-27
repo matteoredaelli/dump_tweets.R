@@ -23,18 +23,25 @@
 ## 
 ##
 ##
-
+library(tm)
 library(logging)
 library(getopt)
 library(RMySQL)
-
-source("config.R")
-basicConfig()
-source("twitter.R")
-
+library(rredis)
 
 ## ############################################
 ## loading options
+## ############################################
+source("config.R")
+basicConfig()
+
+## ############################################
+## twitter
+## ############################################
+source("twitter.R")
+
+## ############################################
+## database
 ## ############################################
 loginfo(sprintf("Connecting to database=%s, host=%s with user=%s",
                 my.config$db, my.config$host, my.config$user))
@@ -47,3 +54,9 @@ con <- dbConnect(MySQL(),
 
 loginfo("using UTF8 code")
 dbSendQuery(con, "set names utf8")
+
+## ############################################
+## rredis
+## ############################################
+redisConnect()
+

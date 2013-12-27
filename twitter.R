@@ -26,6 +26,8 @@
 library(twitteR)
 library(textcat)
 
+source("twitter-utils.R")
+
 chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 
 
@@ -379,9 +381,9 @@ botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=
 loginfo("Connecting to TWITTER...")
           
 setup_twitter_oauth(
-    consumer_key = 'm3GtR24P1biGReMyRdffg',
-    consumer_secret = 'zbLnjPFSA8reqhDgpOEEc6JlvE25nSOBRSSzyXZY',
-    access_token = "162665531-9qnOlxB7Ol4dxVlp0CAKjSi46khkThSbLXrYK1q3",
-    access_secret = "L8OVVvHlL20IxJF9j4tgYiSBurcKlZ0384Ki4vvBM", 
+    consumer_key = my.config$consumer_key,
+    consumer_secret = my.config$consumer_secret,
+    access_token = my.config$access_token,
+    access_secret = my.config$access_secret, 
     credentials_file=NULL
     )

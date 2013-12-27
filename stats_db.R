@@ -24,18 +24,24 @@
 ## ############################################
 StatsDB <- function(folder) {
     loginfo("Dumping statistics...")
+    
     records <- dbGetQuery(con, "select count(*) from users")
     users <- as.integer(records[1][1])
+    
     records <- dbGetQuery(con, "select count(*) from tweets")
     tweets <- as.integer(records[1][1])
+    
     records <- dbGetQuery(con, "select count(*) from search_for")
     searches <- as.integer(records[1][1])
+    
+    records <- dbGetQuery(con, "select count(*) from hashtags")
+    hastags <- as.integer(records[1][1])
     
     sql <- sprintf("delete from stats_db where day='%s'", format(Sys.Date(), "%Y%m%d"))
     dbSendQuery(con, sql)
     
-    sql <- sprintf("insert into stats_db (day, users, tweets, searches) values ('%s', '%d', '%d', '%d')",
-                   format(Sys.Date(), "%Y%m%d"), users, tweets, searches)
+    sql <- sprintf("insert into stats_db (day, users, tweets, searches, hashtags) values ('%s', '%d', '%d', '%d', '%d')",
+                   format(Sys.Date(), "%Y%m%d"), users, tweets, searches, hashtags)
     loginfo(sql)
     dbSendQuery(con, sql)
     return(0)

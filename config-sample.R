@@ -27,13 +27,14 @@ my.config <- list(
     user     = "root",
     pass     = "",
     ## #################################
-    ## search twitter
+    ##  twitter
     ## #################################
     consumer_key    = 'XXX',
     consumer_secret = 'XXX',
     access_token    = "XXX",
     access_secret   = "XXX",
     sleep.dump      = 5,
+    stopwords = c(stopwords("en"), stopwords("it")),
     ## #################################
     ## dump
     ## #################################

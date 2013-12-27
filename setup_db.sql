@@ -76,7 +76,11 @@ CREATE TABLE `users` (
   `id` varchar(30),
   `listedCount` double DEFAULT NULL,
   `followRequestSent` BOOL DEFAULT NULL,
-  `profileImageUrl` varchar(200),
+  `profileImageUrl` varchar(200),  
+  `topHashtags` text DEFAULT NULL, 
+  `topWords` text DEFAULT NULL,
+  `topAgents` text DEFAULT NULL,
+  `topSites` text DEFAULT NULL, 
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -102,9 +106,24 @@ insert into bot_users (id, mail) values
 DROP TABLE IF EXISTS stats_db;
 CREATE TABLE stats_db (
   `day` varchar(8) not null,
-  `users` int(8) not null,
-  `tweets` int(8) not null,
-  `searches` int(8) not null,
+  `users` int(8) not null default 0,
+  `tweets` int(8) not null default 0,
+  `searches` int(8) not null default 0,
+  `hashtags` int(8) not null default 0,   
    PRIMARY KEY (day)
 );
 
+DROP TABLE IF EXISTS `hashtags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hashtags` (
+  `id` varchar(100),
+  `listedCount` double DEFAULT NULL,
+  `topHashtags` text DEFAULT NULL, 
+  `topWords` text DEFAULT NULL,
+  `topAgents` text DEFAULT NULL,
+  `topSites` text DEFAULT NULL, 
+  `topUsers` text DEFAULT NULL, 
+  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
