@@ -42,7 +42,7 @@ botHashtag <- function(hashtag, top=20) {
     
     df <- twListToDF(tweets)
     top.agents <- twTopAgents(df, top=5)
-    top.hashtags <- twTopHashtags(df$text, top=5)
+    top.hashtags <- tolower(twTopHashtags(df$text, top=5))
     
     logwarn("Adding hashtags to redis queue")
     for (h in setdiff(names(top.hashtags), hashtag)) {
@@ -88,7 +88,13 @@ if(!is.na(hashtag)) {
         if(is.null(hashtag) || is.na(hashtag))
             break
         else
-            botHashtag(hashtag)
+            tryCatch(
+                botHashtag(hashtag),
+                error=function(cond) {
+                    logerror(cond)
+                    redisSAdd("twitter:hashtags:errors", hashtag)
+                }
+                )
     }
 
 source("end.R")
