@@ -24,7 +24,7 @@
 ## ############################################
 
 botHashtag <- function(hashtag, top=20) {
-    if( is.null(hashtag) ) {
+    if( is.null(hashtag) || is.na(hashtag) ) {
         logwarn("hashtag is empty, exiting botHashtag..")
         return(1)
     }
@@ -43,11 +43,17 @@ botHashtag <- function(hashtag, top=20) {
     df <- twListToDF(tweets)
     top.agents <- twTopAgents(df, top=5)
     top.hashtags <- twTopHashtags(df$text, top=5)
-
-    logwarn("Adding hashtags to redis queue..")
-    ##(names(top.hashtags),
-    ##           function(h) if(!redisSIsMember("twitter:hashtags:visited", h) redisSAdd("twitter:hashtags:todo", charToRaw(h)))))
     
+    logwarn("Adding hashtags to redis queue")
+    for (h in setdiff(names(top.hashtags), hashtag)) {
+        logwarn(sprintf("hashtag %s", h))
+        if(redisSIsMember("twitter:hashtags:visited", h)) {
+            logwarn(sprintf("hashtag %s already visited", h))
+        } else {
+            logwarn(sprintf("adding hashtag %s", h))
+            redisSAdd("twitter:hashtags:todo", charToRaw(h))
+       }
+    }
     top.words <- twTopWords(df$text, top=10, stopwords=my.config$stopwords)
     hashtag.df <- data.frame(id=hashtag,
                              topAgents=dfToText(top.agents),
@@ -74,9 +80,15 @@ source("begin.R")
 
 hashtag <- args[1]
 
-if(is.na(hashtag))
-    hashtag <- redisSPop("twitter:hashtags:todo")
-
-botHashtag(hashtag)
+if(!is.na(hashtag)) {
+    botHashtag(hashtag)
+} else 
+    while (1) {
+        hashtag <- redisSPop("twitter:hashtags:todo")
+        if(is.null(hashtag) || is.na(hashtag))
+            break
+        else
+            botHashtag(hashtag)
+    }
 
 source("end.R")
