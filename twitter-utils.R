@@ -85,9 +85,11 @@ twTopHashtags <- function(text, top=10) {
     }
     
     t <- sort(t, decreasing=TRUE)
-    names(t) <- tolower(names(t))
+
     if( top < length(t))
         t <- t[1:top]
+
+    names(t) <- tolower(names(t))
     return(t)
 }
 
@@ -97,6 +99,7 @@ twTopWords <- function(text=NULL, tdm.matrix=NULL, stopwords=NULL, top=10) {
     
     ## get word counts in decreasing order
     t <- sort(rowSums(tdm.matrix), decreasing=TRUE)
+ 
     if( length(t) == 0) {
         logwarn("Found 0 occurrences in twTopWords")
         return(NULL)
@@ -104,6 +107,8 @@ twTopWords <- function(text=NULL, tdm.matrix=NULL, stopwords=NULL, top=10) {
     
     if( top < length(t))
         t <- t[1:top]
+
+    names(t) <- tolower(names(t))
     return(t)
 }
 
