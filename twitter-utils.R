@@ -85,6 +85,7 @@ twTopHashtags <- function(text, top=10) {
     }
     
     t <- sort(t, decreasing=TRUE)
+    names(t) <- tolower(names(t))
     if( top < length(t))
         t <- t[1:top]
     return(t)
