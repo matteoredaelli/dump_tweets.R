@@ -39,7 +39,7 @@ botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
 ## ############################################
 ## botUsersTimelines
 ## ############################################
-botUsersTimelines <- function(depth=0, include.followers=TRUE, include.friends=TRUE) {
+botUsersTimelines <- function(include.followers=TRUE, include.friends=TRUE) {
     loginfo("Starting bot timelines...")
     search.for <- dbGetQuery(con, "select * from bot_users where enabled=1")
 
@@ -47,7 +47,7 @@ botUsersTimelines <- function(depth=0, include.followers=TRUE, include.friends=T
         record <- search.for[c,]
         loginfo(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
         try(botUserTimeline(record$id, sinceID=record$sinceid))
-        try(botUsers(record$id, depth=depth, include.followers=include.followers, include.friends=include.friends))
+        try(botUsers(record$id, include.followers=include.followers, include.friends=include.friends))
         loginfo("Sleeping some seconds...")
         Sys.sleep(5)
     }
@@ -57,21 +57,25 @@ botUsersTimelines <- function(depth=0, include.followers=TRUE, include.friends=T
 ## ############################################
 ## botExistingUsers
 ## ############################################
-botExistingUsers <- function(depth=0, sleep=5, include.followers=TRUE, include.friends=TRUE) {
-  loginfo(sprintf("bot existing users with depth=%s", depth))
-  sql <- "select id from users"
-  user.df <- dbGetQuery(con, sql)
-  botUsers(user.df$id, depth=depth, include.followers=include.followers, include.friends=include.friends)
-}
-
-## ############################################
-## botNewUsers
-## ############################################
-botNewUsers <- function(depth=0, sleep=5, include.followers=TRUE, include.friends=TRUE) {
-  loginfo(sprintf("bot new users from tweets with depth=%s", depth))
-  sql <- "select distinct screenName id from tweets where screenName not in  (select screenName from users)"
-  user.df <- dbGetQuery(con, sql)
-  botUsers(user.df$id, depth=depth, include.followers=include.followers, include.friends=include.friends)
+botQueueUsers <- function(buffer=100, sleep=5, include.followers=TRUE, include.friends=TRUE) {
+    loginfo("bot users from Queue")
+    while (1) {
+        users <- myredisSMultiPop("twitter:users:todo", buffer=buffer)
+        
+        tot <- length(users)
+        loginfo(sprintf("Got %d users from queue", tot))
+        
+        if(is.null(users) || is.na(users) || tot == 0)
+            break
+        else
+            tryCatch(
+                botUsers(users, include.followers=include.followers, include.friends=include.friends),
+                error=function(cond) {
+                    logerror(cond)
+                    sapply(users, function(u) redisSAdd("twitter:users:errors", u))
+                }
+                )
+    }
 }
 
 ## ###########################################
@@ -85,9 +89,7 @@ spec = matrix(c(
     'help',         'h', 0, "logical",
     'followers',    'f', 0, "logical",
     'friends',      'F', 0, "logical",
-    'depth',        'd', 2, "integer",
-    'new',          'n', 0, "logical",
-    'existing',     'e', 0, "logical",
+    'queue',        'q', 0, "logical",
     'timeline',     't', 0, "logical",
     'id',           'i', 1, "character"
     ), byrow=TRUE, ncol=4);
@@ -101,22 +103,22 @@ if ( !is.null(opt$help) ) {
 }
 ## set some reasonable defaults for the options that are needed,
 ## but were not specified.
-if ( is.null(opt$depth ) ) { opt$depth = 0 }
-if ( is.null(opt$new ) ) { opt$new = FALSE }
-if ( is.null(opt$existing ) ) { opt$existing = FALSE }
+
+if ( is.null(opt$queue ) ) { opt$queue = FALSE }
 if ( is.null(opt$followers ) ) { opt$followers = FALSE }
 if ( is.null(opt$friends ) ) { opt$friends = FALSE }
 if ( is.null(opt$timeline ) ) { opt$timeline = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
+if ( is.null(opt$id ) ) { opt$id = FALSE }
 
 if( opt$timeline )
-   botUsersTimelines(depth=opt$depth, include.followers=opt$followers, include.friends=opt$friends)
+   botUsersTimelines(include.followers=opt$followers, include.friends=opt$friends)
 
-if( opt$new )
-   botNewUsers(depth=opt$depth, include.followers=opt$followers, include.friends=opt$friends)
+if( opt$id )
+    botUsers(id, include.followers=opt$followers, include.friends=opt$friends)
 
-if( opt$existing )
-   botExistingUsers(depth=opt$depth, include.followers=opt$followers, include.friends=opt$friends)
+if( opt$queue )
+    botQueueUsers(include.followers=opt$followers, include.friends=opt$friends)
 
 
 source("end.R")

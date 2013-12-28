@@ -44,7 +44,7 @@ twTopAttribute <- function(df, attribute, top=10) {
     return(t)
 }
 
-twTopContributors <- function(df, top=10) {
+twTopUsers<- function(df, top=10) {
     return(twTopAttribute(df, attribute="screenName", top=top))
 }
 

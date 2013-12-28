@@ -36,7 +36,20 @@ searchOne <- function(id, q, sinceID, geocode=NULL, lang=NULL) {
     loginfo(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
     tweets <- searchTwitter(q, n=1500, sinceID=sinceID, geocode=geocode, lang=lang)
 
-    saveTweetsAndSinceID(id, tweets, sinceID.table="search_for", results.table="search_results")
+    if( length(tweets) == 0) {
+        logwarn(sprintf("No tweets found searching for q=%s, sinceID=%s", q, sinceID))
+    } else {
+        saveTweetsAndSinceID(id, tweets, sinceID.table="search_for", results.table="search_results")
+
+        df <- twListToDF(tweets)
+    
+        ## push hashtags to queue
+        top.hashtags <- twTopHashtags(df$text, top=10)
+        queueAddTodoHashtags(names(top.hashtags))
+        ##push users to queue
+        users <- unique(df$screenName)
+        try(botUsers(users, include.followers=FALSE, include.friends=FALSE))
+    }
 }
 
 ## ############################################

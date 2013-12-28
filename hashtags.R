@@ -43,17 +43,10 @@ botHashtag <- function(hashtag, top=20) {
     df <- twListToDF(tweets)
     top.agents <- twTopAgents(df, top=5)
     top.hashtags <- twTopHashtags(df$text, top=5)
-    
+ 
     logwarn("Adding hashtags to redis queue")
-    for (h in setdiff(names(top.hashtags), hashtag)) {
-        logwarn(sprintf("hashtag %s", h))
-        if(redisSIsMember("twitter:hashtags:visited", h)) {
-            logwarn(sprintf("hashtag %s already visited", h))
-        } else {
-            logwarn(sprintf("adding hashtag %s", h))
-            redisSAdd("twitter:hashtags:todo", charToRaw(h))
-       }
-    }
+    queueAddTodoHashtags( setdiff(names(top.hashtags), hashtag))
+
     top.words <- twTopWords(df$text, top=10, stopwords=my.config$stopwords)
     hashtag.df <- data.frame(id=hashtag,
                              topAgents=dfToText(top.agents),

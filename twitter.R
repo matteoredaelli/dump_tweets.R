@@ -211,6 +211,60 @@ normalizeUTF8text <- function(testo, ...){
 	testo <- gsub("\t"," ", testo, fixed=TRUE, useBytes=TRUE)
 }
 
+mygetFollowerIDs <- function(user) {
+    followers.count <- as.integer(user$followersCount)
+    loginfo(sprintf("followersCount=%d for user %s - %s",
+                    followers.count,
+                    user$id,
+                    user$screenName))
+    if(followers.count == 0) {
+        result <- c()
+    } else {
+        loginfo(sprintf("Retriving followers for user %s - %s",
+                        user$id,
+                        user$screenName))
+        result <- tryCatch({user$getFollowerIDs()
+                         }, warning = function(w) {
+                             loginfo(w)
+                             c()
+                         }, error = function(e) {
+                             loginfo(e)
+                             c()
+                         }, finally = {
+                             c()
+                         })
+        loginfo(sprintf("found %s followers", length(result)))
+    }
+    return (result)
+}
+
+mygetFriendIDs <- function(user) {
+    friends.count <- as.integer(user$friendsCount)
+    loginfo(sprintf("friendsCount=%d for user %s - %s", 
+                    friends.count,
+                    user$id,
+                    user$screenName))
+
+    if(friends.count == 0) {
+        result <- c()
+    } else {
+        loginfo(sprintf("Retriving friends for user %s - %s",
+                        user$id,
+                        user$screenName))
+        result <- tryCatch({user$getFriendIDs()
+                        }, warning = function(w) {
+                            loginfo(w)
+                            c()
+                        }, error = function(e) {
+                            loginfo(e)
+                            c()
+                        }, finally = {
+                            c()
+                        })
+        loginfo(sprintf("found %s friends", length(result)))
+    }
+    return (result)
+}
 
 ## ############################################
 ## saveTweetsAndSinceID
@@ -254,11 +308,10 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) 
 ## ############################################
 ## botUsers
 ## ############################################
-botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, already.visited=c(), n=2000) {
+botFewUsers <- function(users.id, include.followers=TRUE, include.friends=TRUE, n=2000) {
     if (length(users.id) == 0) {
         loginfo("No users to be bot!!")
     } else {
-        already.visited <- c(users.id, already.visited)
         loginfo(sprintf("twitter lookup for %d users", length(users.id)))
         logwarn(sprintf("twitter lookup users: %s", paste(users.id, collapse=", ")))
         users <- lookupUsers(users.id)
@@ -268,90 +321,44 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
         users.count <- nrow(users.df)
         if (is.null(users.df) || users.count == 0) {
           loginfo("No users retreived. Something went wrong")
-          return(already.visited)
+          return(1)
         }
         loginfo("saving users to users table...")
         try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
-
-        loginfo(sprintf("depth=%s", depth))
-        if (depth <= 0) {
-           loginfo("end of recursion")
-           return(0)
-        }
-        depth.new <- depth - 1
+        
+        loginfo("adding users to visited users queue")
+        sapply(users.df$id, function(id) redisSAdd("twitter:users:visited", charToRaw(id)))
+        
         followers.id <- friends.id <- c()
 
         if (include.followers) {
            loginfo("Retriving followers...")
            for (i in 1:length(users)) {
-              followers.count <- as.integer(users[[i]]$followersCount)
-              loginfo(sprintf("followersCount=%d for user %s - %s",
-                              followers.count,
-                              users[[i]]$id,
-                              users[[i]]$screenName))
-              if(followers.count > 0) {
-                loginfo(sprintf("Retriving followers for user %s - %s",
-                                users[[i]]$id,
-                                users[[i]]$screenName))
-                some.id <- tryCatch({users[[i]]$getFollowerIDs()
-                                    }, warning = function(w) {
-                                     loginfo(w)
-                                     c()
-                                    }, error = function(e) {
-                                     loginfo(e)
-                                     c()
-                                    }, finally = {
-                                     c()
-                                    })
-                loginfo(sprintf("found %s followers", length(some.id)))
-                followers.id <- c(followers.id, some.id)
-                Sys.sleep(my.config$sleep.dump)
-            }
+               some.id <- mygetFollowerIDs(users[[i]])
+               followers.id <- c(followers.id, some.id)
+               Sys.sleep(my.config$sleep.dump)
            }
            loginfo(sprintf("found %d followers", length(followers.id)))
-        }
+       }
         Sys.sleep(my.config$sleep.dump)
         if (include.friends) {
            loginfo("Retriving friends")
            for (i in 1:length(users)) {
-              friends.count <- as.integer(users[[i]]$friendsCount)
-              loginfo(sprintf("friendsCount=%d for user %s - %s", 
-                              friends.count,
-                              users[[i]]$id,
-                              users[[i]]$screenName))
-              if(friends.count > 0) {
-                loginfo(sprintf("Retriving friends for user %s - %s",
-                                users[[i]]$id,
-                                users[[i]]$screenName))
-                some.id <- tryCatch({users[[i]]$getFriendIDs()
-                                    }, warning = function(w) {
-                                     loginfo(w)
-                                     c()
-                                    }, error = function(e) {
-                                     loginfo(e)
-                                     c()
-                                    }, finally = {
-                                     c()
-                                    })
-                loginfo(sprintf("found %s friends", length(some.id)))
-                friends.id <- c(friends.id, some.id)
-                Sys.sleep(my.config$sleep.dump)
-            }
+               some.id <- mygetFriendIDs(users[[i]])
+               friends.id <- c(friends.id, some.id)
+               Sys.sleep(my.config$sleep.dump)
            }
            loginfo(sprintf("found %d friends", length(friends.id)))
-        }
-
+       }
+        
         users.id <- unique(c(followers.id, friends.id))
+        loginfo("removing current users from followers and friends..")
+        users.id <- setdiff(users.id, users.df$id)
+        
         if (is.null(users.id) || length(users.id) == 0) {
-          loginfo("no followers and/or friends to be crawled")
+            loginfo("no followers and/or friends to be crawled")
         } else {
-          loginfo(sprintf("Crawling &d followers and/or friends...", length(users.id)))
-          try(lapply(users.id, function(id) botUsers(id, 
-                                                      depth=depth.new,
-                                                      include.followers=include.followers,
-                                                      include.friends=include.friends,
-                                                      already.visited = already.visited
-                                                      )))
+            queueAddTodoUsers(users.id)
         }
     }
 }
@@ -359,20 +366,42 @@ botFewUsers <- function(users.id, depth=0, include.followers=TRUE, include.frien
 ## ############################################
 ## botUsers
 ## ############################################
-botUsers <- function(users.id, depth=0, include.followers=TRUE, include.friends=TRUE, already.visited=c(), n=2000) {
-  tot.orig <- length(users.id)
-  users.id <- setdiff(users.id, already.visited)
+botUsers <- function(users.id, include.followers=TRUE, include.friends=TRUE, n=2000) {
   tot <- length(users.id)
-  loginfo(sprintf("Found in %d users, reduced to %d after removing already visited users", tot.orig, tot))
+  loginfo(sprintf("Found in %d users", tot))
   if(!is.null(users.id) && tot > 100) {
     split.by <- as.integer(tot / 100) + 1
     loginfo(sprintf("splitting users in %d groups", split.by))
     users.id.list <- chunk(users.id, split.by)
-    lapply(users.id.list, function(id.list) botFewUsers(id.list, depth=depth, include.followers=include.followers, include.friends=include.friends, already.visited=already.visited, n=n))
+    lapply(users.id.list, function(id.list) botFewUsers(id.list, include.followers=include.followers, include.friends=include.friends, n=n))
   } else {
-    botFewUsers(users.id, depth=depth, include.followers=include.followers, include.friends=include.friends, already.visited=already.visited, n=n)
+    botFewUsers(users.id, include.followers=include.followers, include.friends=include.friends, n=n)
   } 
 }
+
+## ############################################
+## queue function
+## ############################################
+queueAddTodo <- function(element, queue.todo, queue.visited) {
+    logdebug(sprintf("element %s", element))
+    if(redisSIsMember(queue.visited, element)) {
+        logdebug(sprintf("element %s already visited", element))
+    } else {
+        logdebug(sprintf("adding element  %s", element))
+        redisSAdd(queue.todo, charToRaw(element))
+    }
+}
+
+queueAddTodoHashtags <- function(hashtags) {
+    loginfo("Adding hashtags to queue")
+    sapply(hashtags, function(e) queueAddTodo(e, "twitter:hashtags:todo", "twitter:hashtags:visited"))
+}
+
+queueAddTodoUsers <- function(users) {
+    loginfo("Adding users to queue")
+    sapply(users, function(e) queueAddTodo(e, "twitter:users:todo", "twitter:users:visited"))
+}
+
 
 ## ############################################
 ## loading options

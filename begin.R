@@ -27,13 +27,17 @@ library(tm)
 library(logging)
 library(getopt)
 library(RMySQL)
-library(rredis)
 
 ## ############################################
 ## loading options
 ## ############################################
 source("config.R")
 basicConfig()
+
+## ############################################
+## redis
+## ############################################
+source("redis-utils.R")
 
 ## ############################################
 ## twitter
