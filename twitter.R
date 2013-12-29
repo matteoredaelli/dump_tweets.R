@@ -305,6 +305,25 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) 
     }
 }
 
+analyzeTweets <- function(df, top=20, stopwords=stopwords("en")) {
+    top.agents <- dfToText(twTopAgents(df, top=3))
+    top.hashtags <- dfToText(twTopHashtags(df$text, top=top))
+    top.retwittingUsers <- dfToText(twTopRetwittingUsers(df$text, top=top))
+    top.words <- twTopWords(df$text, top=top, stopwords=my.config$stopwords)
+    data.frame(
+        topAgents=dfToText(top.agents),
+        topHashtags=dfToText(top.hashtags),
+        topWords=dfToText(top.words),
+        topRetwittingUsers=dfToText(top.retwittingUsers))
+}
+
+analyzeTimeline <- function(user.id, top=20, includeRts=TRUE) {
+    loginfo(sprintf("Getting timeline for id=%s", id))
+    timeline <- userTimeline(user.id, includeRts=includeRts, n=1000)
+    df <- twListToDF(timeline)
+    analyzeTweets(df, top=top)
+}
+
 ## ############################################
 ## botUsers
 ## ############################################
@@ -328,6 +347,7 @@ botFewUsers <- function(users.id, include.followers=TRUE, include.friends=TRUE, 
         
         loginfo("adding users to visited users queue")
         sapply(users.df$id, function(id) redisSAdd("twitter:users:visited", charToRaw(id)))
+
         
         followers.id <- friends.id <- c()
 

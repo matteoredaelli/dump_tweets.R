@@ -23,10 +23,11 @@ library(cluster)
 library(FactoMineR)
 
 
-dfToText <- function(df, sep=":", eol=",", col.names=FALSE, quote=FALSE) {
+dfToText <- function(df, sep=":", eol=",", row.names=TRUE, col.names=FALSE, quote=FALSE) {
     if(is.na(df) || is.null(df) || length(df) == 0)
         return(NA)
-    capture.output(write.table(df, col.names=col.names, eol=eol, quote=quote, sep=sep))
+    ##df <- data.frame(name=names(df), value=df)
+    capture.output(write.table(df, row.names=row.names, col.names=col.names, eol=eol, quote=quote, sep=sep))
 }
 
 twNormalizeDate <- function(df, tz) {
@@ -90,6 +91,27 @@ twTopHashtags <- function(text, top=10) {
         t <- t[1:top]
 
     names(t) <- tolower(names(t))
+    return(t)
+}
+
+twTopRetwittingUsers <- function(text, top=10) {
+    ## TODO: the regular expression may not be correct.. sometimes I see @_opesource_
+    users.list <- str_extract_all(text, "(RT|via)((?:\\b\\W*@\\w+)+)")
+    users <- unlist(users.list)
+    users <- gsub(":", "", users) 
+    users <- gsub("(RT @|via @)", "", users, ignore.case=TRUE) 
+    t <- table(users)
+    if( length(t) == 0) {
+        logwarn("Found 0 occurrences in twTopRetwittingUsers")
+        return(NULL)
+    }
+    
+    t <- sort(t, decreasing=TRUE)
+
+    if( top < length(t))
+        t <- t[1:top]
+    
+    #names(t) <- tolower(names(t))
     return(t)
 }
 

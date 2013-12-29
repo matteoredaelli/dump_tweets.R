@@ -79,8 +79,10 @@ CREATE TABLE `users` (
   `profileImageUrl` varchar(200),  
   `topHashtags` text DEFAULT NULL, 
   `topWords` text DEFAULT NULL,
+  `topFavoriteWords` text DEFAULT NULL,
   `topAgents` text DEFAULT NULL,
   `topSites` text DEFAULT NULL, 
+  `topRetwittingUsers` text DEFAULT NULL, 
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -124,6 +126,7 @@ CREATE TABLE `hashtags` (
   `topAgents` text DEFAULT NULL,
   `topSites` text DEFAULT NULL, 
   `topUsers` text DEFAULT NULL, 
+  `topRetwittingUsers` text DEFAULT NULL,
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
