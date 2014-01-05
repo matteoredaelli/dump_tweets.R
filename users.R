@@ -77,10 +77,10 @@ botUsersTimelines <- function(include.followers=TRUE, include.friends=TRUE, save
 ## ############################################
 ## botLookupsQueueUsers
 ## ############################################
-botLookupsQueueUsers <- function(buffer=100, sleep=5, includeRts=TRUE) {
+botLookupsQueueUsers <- function(buffer=100, sleep=5, include.followers=FALSE, include.friends=FALSE, include.timelines=FALSE, includeRts=TRUE) {
     loginfo("bot users from Lookups Queue")
     while (1) {
-        user <- myredisSMultiPop("twitter:users:lookups:todo", buffer=buffer)
+        users <- myredisSMultiPop("twitter:users:lookups:todo", buffer=buffer)
         
         tot <- length(users)
         loginfo(sprintf("Got %d users from queue", tot))
@@ -159,13 +159,12 @@ if ( is.null(opt$followers ) ) { opt$followers = FALSE }
 if ( is.null(opt$friends ) ) { opt$friends = FALSE }
 if ( is.null(opt$timelines ) ) { opt$timelines = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
-if ( is.null(opt$id ) ) { opt$id = FALSE }
 
 if( opt$timelines )
    botUsersTimelines(include.followers=opt$followers, include.friends=opt$friends, save=TRUE)
 
-if( opt$id )
-    botUsers(id, include.followers=opt$followers, include.friends=opt$friends, include.timelines=opt$timelines, save=FALSE)
+if( !is.null(opt$id))
+    botUsers(opt$id, include.followers=opt$followers, include.friends=opt$friends, include.timelines=opt$timelines)
 
 if( opt$queueLookups)
     botLookupsQueueUsers(include.followers=opt$followers,
