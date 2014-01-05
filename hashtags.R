@@ -41,13 +41,10 @@ botHashtag <- function(hashtag, top=20) {
     }
     
     df <- twListToDF(tweets)
+
     hashtag.df <- analyzeTweets(df, top=20)
     hashtag.df <- cbind(id=hashtag, hashtag.df)
     
-    logwarn("Adding hashtags to redis queue")
-    top.hashtags <- twTopHashtags(df$text, top=5)
-    queueAddTodoHashtags( setdiff(names(top.hashtags), hashtag))
-
     loginfo(sprintf("removing old entry '%s' in hashtags table...", hashtag))
     sql <- sprintf("delete from hashtags where id='%s'", hashtag)
     logdebug(sql)

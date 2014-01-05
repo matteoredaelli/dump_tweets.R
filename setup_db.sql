@@ -77,12 +77,6 @@ CREATE TABLE `users` (
   `listedCount` double DEFAULT NULL,
   `followRequestSent` BOOL DEFAULT NULL,
   `profileImageUrl` varchar(200),  
-  `topHashtags` text DEFAULT NULL, 
-  `topWords` text DEFAULT NULL,
-  `topFavoriteWords` text DEFAULT NULL,
-  `topAgents` text DEFAULT NULL,
-  `topSites` text DEFAULT NULL, 
-  `topRetwittingUsers` text DEFAULT NULL, 
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -112,6 +106,7 @@ CREATE TABLE stats_db (
   `tweets` int(8) not null default 0,
   `searches` int(8) not null default 0,
   `hashtags` int(8) not null default 0,   
+  `timelines` int(8) not null default 0,     
    PRIMARY KEY (day)
 );
 
@@ -120,7 +115,22 @@ DROP TABLE IF EXISTS `hashtags`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hashtags` (
   `id` varchar(100),
-  `listedCount` double DEFAULT NULL,
+  `topHashtags` text DEFAULT NULL, 
+  `topWords` text DEFAULT NULL,
+  `topAgents` text DEFAULT NULL,
+  `topSites` text DEFAULT NULL, 
+  `topUsers` text DEFAULT NULL, 
+  `topRetwittingUsers` text DEFAULT NULL,
+  `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `timelines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `timelines` (
+  `id` varchar(100),
   `topHashtags` text DEFAULT NULL, 
   `topWords` text DEFAULT NULL,
   `topAgents` text DEFAULT NULL,

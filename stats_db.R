@@ -36,12 +36,15 @@ StatsDB <- function(folder) {
     
     records <- dbGetQuery(con, "select count(*) from hashtags")
     hastags <- as.integer(records[1][1])
+
+    records <- dbGetQuery(con, "select count(*) from timelines")
+    timelines <- as.integer(records[1][1])
     
     sql <- sprintf("delete from stats_db where day='%s'", format(Sys.Date(), "%Y%m%d"))
     dbSendQuery(con, sql)
     
-    sql <- sprintf("insert into stats_db (day, users, tweets, searches, hashtags) values ('%s', '%d', '%d', '%d', '%d')",
-                   format(Sys.Date(), "%Y%m%d"), users, tweets, searches, hashtags)
+    sql <- sprintf("insert into stats_db (day, users, tweets, searches, hashtags, timelines) values ('%s', '%d', '%d', '%d', '%d', '%d')",
+                   format(Sys.Date(), "%Y%m%d"), users, tweets, searches, hashtags, timelines)
     loginfo(sql)
     dbSendQuery(con, sql)
     return(0)

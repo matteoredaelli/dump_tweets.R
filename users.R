@@ -30,24 +30,44 @@ source("begin.R")
 ## ############################################
 ## botUserTimeline
 ## ############################################
-botUserTimeline <- function(id, sinceID, includeRts=TRUE) {
+botUserTimeline <- function(id, sinceID=1, includeRts=TRUE, save=FALSE) {
     loginfo(sprintf("Getting timeline for id=%s, sinceID=%s", id, sinceID))
     tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts, n=1000)
-    saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
+
+    if(length(tweets) == 0) {
+        logwarn(sprintf("No timeline retreived for user id=%s, sinceID=%s", id, sinceID))
+        redisSAdd("twitter:users:timelines:noresults", charToRaw(id))
+        return(0)
+    }
+    
+    if(save)
+        saveTweetsAndSinceID(id, tweets, sinceID.table="bot_users", results.table=NULL)
+
+    df = twListToDF(tweets)
+    timelines.df <- analyzeTweets(df, top=20)
+    timelines.df <- cbind(id=id, timelines.df)
+
+    loginfo(sprintf("removing old entry '%s' in timelines table...", id))
+    sql <- sprintf("delete from timelines where id='%s'", id)
+    logdebug(sql)
+    dbSendQuery(con, sql)
+    
+    loginfo("Saving data to timelines table...")
+    dbWriteTable(con, "timelines", timelines.df, row.names=FALSE, append=TRUE)                    
+    redisSAdd("twitter:users:timelines:visited", charToRaw(id))
 }
 
 ## ############################################
 ## botUsersTimelines
 ## ############################################
-botUsersTimelines <- function(include.followers=TRUE, include.friends=TRUE) {
+botUsersTimelines <- function(include.followers=TRUE, include.friends=TRUE, save=TRUE) {
     loginfo("Starting bot timelines...")
     search.for <- dbGetQuery(con, "select * from bot_users where enabled=1")
 
     for (c in 1:nrow(search.for)) {
         record <- search.for[c,]
         loginfo(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
-        try(botUserTimeline(record$id, sinceID=record$sinceid))
-        try(botUsers(record$id, include.followers=include.followers, include.friends=include.friends))
+        try(botUsers(record$id, include.followers=include.followers, include.friends=include.friends, include.timelines=TRUE, save=save))
         loginfo("Sleeping some seconds...")
         Sys.sleep(5)
     }
@@ -55,26 +75,54 @@ botUsersTimelines <- function(include.followers=TRUE, include.friends=TRUE) {
 
 
 ## ############################################
-## botExistingUsers
+## botLookupsQueueUsers
 ## ############################################
-botQueueUsers <- function(buffer=100, sleep=5, include.followers=TRUE, include.friends=TRUE) {
-    loginfo("bot users from Queue")
+botLookupsQueueUsers <- function(buffer=100, sleep=5, includeRts=TRUE) {
+    loginfo("bot users from Lookups Queue")
     while (1) {
-        users <- myredisSMultiPop("twitter:users:todo", buffer=buffer)
+        user <- myredisSMultiPop("twitter:users:lookups:todo", buffer=buffer)
         
         tot <- length(users)
         loginfo(sprintf("Got %d users from queue", tot))
         
-        if(is.null(users) || is.na(users) || tot == 0)
+        if(is.null(users) || is.na(users))
             break
-        else
-            tryCatch(
-                botUsers(users, include.followers=include.followers, include.friends=include.friends),
-                error=function(cond) {
-                    logerror(cond)
-                    sapply(users, function(u) redisSAdd("twitter:users:errors", u))
-                }
-                )
+        
+        tryCatch(
+            botUsers(users,
+                     include.followers=include.followers,
+                     include.friends=include.friends,
+                     include.timelines=include.timelines),
+            error=function(cond) {
+                logerror(cond)
+                sapply(users, function(u) redisSAdd("twitter:users:lookups:errors", charToRaw(u)))
+            }
+            )
+    }
+}
+
+## ############################################
+## botTimelinessQueueUsers
+## ############################################
+botTimelinesQueueUsers <- function(includeRts=TRUE, sleep=5, save=FALSE) {
+    loginfo("bot users from Timelines Queue")
+    while (1) {
+        user <- redisSPop("twitter:users:timelines:todo")
+        if(is.null(user) || is.na(user))
+            break
+   
+        loginfo(sprintf("Got %s user from queue", user))
+        
+        if(is.null(user) || is.na(user))
+            break
+
+        tryCatch(
+            botUserTimeline(user, sinceID=1, includeRts=includeRts, save=save),
+            error=function(cond) {
+                logerror(cond)
+                redisSAdd("twitter:users:timelines:errors", charToRaw(user))
+            }
+            )
     }
 }
 
@@ -85,13 +133,14 @@ botQueueUsers <- function(buffer=100, sleep=5, include.followers=TRUE, include.f
 ## get options, using the spec as defined by the enclosed list.
 ## we read the options from the default: commandArgs(TRUE).
 spec = matrix(c(
-    'verbose',      'v', 2, "integer",
-    'help',         'h', 0, "logical",
-    'followers',    'f', 0, "logical",
-    'friends',      'F', 0, "logical",
-    'queue',        'q', 0, "logical",
-    'timeline',     't', 0, "logical",
-    'id',           'i', 1, "character"
+    'verbose',           'v', 2, "integer",
+    'help',              'h', 0, "logical",
+    'followers',         'f', 0, "logical",
+    'friends',           'F', 0, "logical",
+    'queueLookups',      'L', 0, "logical",
+    'queueTimelines',    'T', 0, "logical",
+    'timelines',         't', 0, "logical",
+    'id',                'i', 1, "character"
     ), byrow=TRUE, ncol=4);
 
 opt = getopt(spec);
@@ -104,22 +153,26 @@ if ( !is.null(opt$help) ) {
 ## set some reasonable defaults for the options that are needed,
 ## but were not specified.
 
-if ( is.null(opt$queue ) ) { opt$queue = FALSE }
+if ( is.null(opt$queueLookups) ) { opt$queueLookups = FALSE }
+if ( is.null(opt$queueTimelines) ) { opt$queueTimelines = FALSE }
 if ( is.null(opt$followers ) ) { opt$followers = FALSE }
 if ( is.null(opt$friends ) ) { opt$friends = FALSE }
-if ( is.null(opt$timeline ) ) { opt$timeline = FALSE }
+if ( is.null(opt$timelines ) ) { opt$timelines = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 if ( is.null(opt$id ) ) { opt$id = FALSE }
 
-if( opt$timeline )
-   botUsersTimelines(include.followers=opt$followers, include.friends=opt$friends)
+if( opt$timelines )
+   botUsersTimelines(include.followers=opt$followers, include.friends=opt$friends, save=TRUE)
 
 if( opt$id )
-    botUsers(id, include.followers=opt$followers, include.friends=opt$friends)
+    botUsers(id, include.followers=opt$followers, include.friends=opt$friends, include.timelines=opt$timelines, save=FALSE)
 
-if( opt$queue )
-    botQueueUsers(include.followers=opt$followers, include.friends=opt$friends)
+if( opt$queueLookups)
+    botLookupsQueueUsers(include.followers=opt$followers,
+                         include.friends=opt$friends)
 
+if( opt$queueTimelines)
+    botTimelinesQueueUsers()
 
 source("end.R")
 

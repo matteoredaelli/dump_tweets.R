@@ -26,7 +26,7 @@ library(FactoMineR)
 dfToText <- function(df, sep=":", eol=",", row.names=TRUE, col.names=FALSE, quote=FALSE) {
     if(is.na(df) || is.null(df) || length(df) == 0)
         return(NA)
-    ##df <- data.frame(name=names(df), value=df)
+   
     capture.output(write.table(df, row.names=row.names, col.names=col.names, eol=eol, quote=quote, sep=sep))
 }
 
@@ -40,7 +40,7 @@ twNormalizeDate <- function(df, tz) {
 
 twTopAttribute <- function(df, attribute, top=10) {
     t <- rev(sort(table(df[[attribute]])))
-    if( top > length(t))
+    if( top < length(t))
         t <- t[1:top]
     return(t)
 }
@@ -79,7 +79,8 @@ twTopLinks <- function(text, top=10) {
 }
 
 twTopHashtags <- function(text, top=10) {
-    t <- table(unlist(lapply(strsplit(text, '[ :.,;]'), function(w) grep('#', w, value=TRUE))))
+    t <- tolower(unlist(lapply(strsplit(text, '[ :.,;]'), function(w) grep('#', w, value=TRUE))))
+    t <- table(t)
     if( length(t) == 0) {
         logwarn("Found 0 occurrences in twTopHashtags")
         return(NULL)
@@ -90,7 +91,6 @@ twTopHashtags <- function(text, top=10) {
     if( top < length(t))
         t <- t[1:top]
 
-    names(t) <- tolower(names(t))
     return(t)
 }
 
@@ -117,7 +117,7 @@ twTopRetwittingUsers <- function(text, top=10) {
 
 twTopWords <- function(text=NULL, tdm.matrix=NULL, stopwords=NULL, top=10) {
     if(is.null(tdm.matrix))
-        tdm.matrix <- twBuildTDMMatrix(text, stopwords=stopwords)
+        tdm.matrix <- twBuildTDMMatrix(text, stopwords=stopwords, twCleanText=TRUE)
     
     ## get word counts in decreasing order
     t <- sort(rowSums(tdm.matrix), decreasing=TRUE)
@@ -130,7 +130,6 @@ twTopWords <- function(text=NULL, tdm.matrix=NULL, stopwords=NULL, top=10) {
     if( top < length(t))
         t <- t[1:top]
 
-    names(t) <- tolower(names(t))
     return(t)
 }
 
