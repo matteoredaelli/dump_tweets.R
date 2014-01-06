@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS twitter;
+
 CREATE DATABASE twitter
   DEFAULT CHARACTER SET utf8
   DEFAULT COLLATE utf8_general_ci;
@@ -130,7 +132,7 @@ DROP TABLE IF EXISTS `timelines`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `timelines` (
-  `id` varchar(100),
+  `id` varchar(30),
   `topHashtags` text DEFAULT NULL, 
   `topWords` text DEFAULT NULL,
   `topAgents` text DEFAULT NULL,

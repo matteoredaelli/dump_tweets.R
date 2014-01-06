@@ -160,7 +160,7 @@ if ( is.null(opt$friends ) ) { opt$friends = FALSE }
 if ( is.null(opt$timelines ) ) { opt$timelines = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 
-if( opt$timelines )
+if( opt$timelines & is.null(opt$id) )
    botUsersTimelines(include.followers=opt$followers, include.friends=opt$friends, save=TRUE)
 
 if( !is.null(opt$id))
