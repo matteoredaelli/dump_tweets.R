@@ -88,7 +88,7 @@ mygetFriendIDs <- function(user) {
 ## ############################################
 ## saveTweetsAndSinceID
 ## ############################################
-saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) {
+saveTweetsAndSinceID <- function(id, tweets, sinceID.table=NULL, results.table=NULL) {
     if (length(tweets) == 0) {
         loginfo("No tweets found!!")
     } else if (!is.null(tweets[1]$error)) {
@@ -117,10 +117,12 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table, results.table=NULL) 
             dbWriteTable(con, results.table, results, row.names=FALSE, append=TRUE)
         }
         
-        loginfo(sprintf("updating table %s...", sinceID.table))
-        sql <- sprintf("update %s set sinceid=%s where id='%s'", sinceID.table, maxID, id)
-        loginfo(sql)
-        dbSendQuery(con, sql)
+        if (!is.null(sinceID.table) & id > 0) {
+            loginfo(sprintf("updating table %s...", sinceID.table))
+            sql <- sprintf("update %s set sinceid=%s where id='%s'", sinceID.table, maxID, id)
+            loginfo(sql)
+            dbSendQuery(con, sql)
+        }
     }
 }
 
@@ -243,7 +245,7 @@ queueAddTodo <- function(element, queue.todo, queue.visited) {
 }
 
 queueAddTodoHashtags <- function(hashtags) {
-    loginfo("Adding hashtags to queue")
+    loginfo(paste("Adding hashtags to queue: ", paste(hashtags, collapse=", ")))
     sapply(hashtags, function(e) queueAddTodo(e, "twitter:hashtags:todo", "twitter:hashtags:visited"))
 }
 
