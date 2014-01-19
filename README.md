@@ -3,7 +3,7 @@ dump_tweets.R
 
 VERSION
 
-0.2-SNASPHOT - November 2013
+0.4-SNASPHOT - january 2014
 
 INSTALLATION
 
@@ -13,7 +13,28 @@ INSTALLATION
 
   ex. (if you use linux) mysql -u root < setup_db.sql
 
+USAGE
+
+
+Rscript search.R -h
+
+Rscript search.R
+
+Rscript search.R -q "opensource OR opensource"
+
+Rscript users.R -h
+
+Rscript users.R
+
+Rscript users.R -L 
+
+Rscript users.R -T
+
+Rscript hashtags.R -h
+
+
 Regards
+
 matteo DOT redaelli AT gmail DOT com
 
 
