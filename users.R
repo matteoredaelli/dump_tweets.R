@@ -67,7 +67,7 @@ botUsersTimelines <- function(include.followers=TRUE, include.friends=TRUE, save
     for (c in 1:nrow(search.for)) {
         record <- search.for[c,]
         loginfo(sprintf("ID=%s, sinceID=%s", record$id, record$sinceid))
-        try(botUsers(record$id, include.followers=include.followers, include.friends=include.friends, include.timelines=TRUE, save=save))
+        try(botUsers(record$id, include.followers=include.followers, include.friends=include.friends, include.timelines=TRUE))
         loginfo("Sleeping some seconds...")
         Sys.sleep(5)
     }
