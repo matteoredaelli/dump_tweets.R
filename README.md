@@ -1,22 +1,24 @@
-dump_tweets.R
-=============
+# dump_tweets.R
 
 VERSION
 
 0.4-SNASPHOT - january 2014
 
-INSTALLATION
+## INSTALLATION
+
 
 1) you have to register an application at  Twitter API 
 
 2) copy config-sample.R to config.R and update it with your settings
 
-3) use teh file setup_db.sql to create a new mysql database and table
+3) use the file setup_db.sql to create a new mysql database and needed tables
 
-  ex. (if you use linux) mysql -u root < setup_db.sql
+  example: (if you use linux) mysql -u root < setup_db.sql
 
-USAGE
 
+## USAGE
+
+### Searching tweets
 
 Rscript search.R -h
 
@@ -24,9 +26,10 @@ Insert your favourites/recurrent searches in search-for table and then run
 
 Rscript search.R
 
-Rscript search.R -q "opensource OR opensource"
+Rscript search.R -q "opensource OR #opensource"
 
 
+### Retriving users (info and timelines)
 
 Rscript users.R -h
 
@@ -46,6 +49,9 @@ search hashtags from redis queue
 
 Rscript hashtags.R -h
 
+### Dump database to Rdata files
+
+Rscript  dump_db.R
 
 Regards
 
