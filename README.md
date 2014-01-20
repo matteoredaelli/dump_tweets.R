@@ -1,5 +1,7 @@
 # dump_tweets.R
 
+dump_tweets.R is sponsorized by Associazioen Rospo (http://associazionerospo.org/
+
 VERSION
 
 0.4-SNASPHOT - january 2014
