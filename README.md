@@ -17,9 +17,13 @@ dump_tweets.R is sponsorized by Associazione Rospo (http://associazionerospo.org
 
 1) you have to register an application at  Twitter API 
 
-2) copy config-sample.R to config.R and update it with your settings
+2) install a MySQL / Maria Database
 
-3) use the file setup_db.sql to create a new mysql database and needed tables
+3) install a Redis Server (used for managing queues)
+
+4) copy config-sample.R to config.R and update it with your settings
+
+5) use the file setup_db.sql to create a new mysql database and needed tables
 
   example: (if you use linux) mysql -u root < setup_db.sql
 
