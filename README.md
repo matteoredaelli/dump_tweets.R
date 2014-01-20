@@ -1,6 +1,6 @@
 # dump_tweets.R
 
-dump_tweets.R is a tool for searching tweets and crawl (recursively) users from twitter. Data are then saved to a MySQL database and can finally be exported to .RData files
+dump_tweets.R is a tool for searching tweets and (recursively) crawl users from twitter. Data are then saved to a MySQL database and can finally be exported to .RData files
 
 
 
