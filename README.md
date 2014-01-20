@@ -1,13 +1,19 @@
 # dump_tweets.R
 
-dump_tweets.R is sponsorized by Associazioen Rospo (http://associazionerospo.org/
+dump_tweets.R is a tool for searching tweets and crawl (recursively) users from twitter. Data are then saved to a MySQL database and can finally be exported to .RData files
+
+
 
 VERSION
 
 0.4-SNASPHOT - january 2014
 
-## INSTALLATION
 
+## SPONSORS
+
+dump_tweets.R is sponsorized by Associazione Rospo (http://associazionerospo.org/
+
+## INSTALLATION
 
 1) you have to register an application at  Twitter API 
 
