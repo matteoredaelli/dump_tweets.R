@@ -62,5 +62,5 @@ dbSendQuery(con, "SET NAMES 'utf8'")
 ## ############################################
 ## rredis
 ## ############################################
-redisConnect()
+redisConnect(host=my.config$redis.host, port=my.config$redis.port)
 
