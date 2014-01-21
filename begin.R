@@ -51,10 +51,10 @@ loginfo(sprintf("Connecting to database=%s, host=%s with user=%s",
                 my.config$db, my.config$host, my.config$user))
 
 con <- dbConnect(MySQL(),
-                 db=my.config$db,
-                 user=my.config$user,
-                 pass=my.config$pass,
-                 host=my.config$host)
+                 db=my.config$db.name,
+                 user=my.config$db.user,
+                 pass=my.config$db.pass,
+                 host=my.config$db.host)
 
 loginfo("using UTF8 code")
 dbSendQuery(con, "SET NAMES 'utf8'")

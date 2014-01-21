@@ -22,10 +22,10 @@ my.config <- list(
     ## #################################
     ## database
     ## #################################
-    host     = "localhost",
-    db       = "twitter",
-    user     = "root",
-    pass     = "",
+    db.host     = "localhost",
+    db.name     = "twitter",
+    db.user     = "root",
+    db.pass     = "",
     ## #################################
     ## redis
     ## #################################

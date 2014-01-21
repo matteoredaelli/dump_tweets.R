@@ -25,7 +25,8 @@ insert into search_for (id, mail, q) values
   ('goodyear', 'matteo.redaelli@gmail.com', '#goodyear OR @goodyear_uk'),
   ('pirelli', 'matteo.redaelli@gmail.com', '#pirelli OR @Pirelli_Media'),
   ('continental', 'matteo.redaelli@gmail.com', '#continentaltire OR @continentaltire'),
-  ('michelin', 'matteo.redaelli@gmail.com', '#michelin OR @MichelinTyres')
+  ('michelin', 'matteo.redaelli@gmail.com', '#michelin OR @MichelinTyres'),
+  ('kumho', 'matteo.redaelli@gmail.com', '#KumhoTyres OR #kumho OR @KumhoTireUSA OR @KumhoTyres OR KumhoTyres')
 ;
 
 DROP TABLE IF EXISTS search_results;
@@ -98,7 +99,10 @@ insert into bot_users (id, mail) values
   ('goodyear_uk', 'matteo.redaelli@gmail.com'),
   ('Pirelli_Media', 'matteo.redaelli@gmail.com'),
   ('continentaltire', 'matteo.redaelli@gmail.com'),
-  ('MichelinTyres', 'matteo.redaelli@gmail.com')
+  ('MichelinTyres', 'matteo.redaelli@gmail.com'),
+  ('KumhoTyres', 'matteo.redaelli@gmail.com'),
+  ('KumhoTyresUK', 'matteo.redaelli@gmail.com'),
+  ('KumhoTireUSA', 'matteo.redaelli@gmail.com')
 ;
 
 DROP TABLE IF EXISTS stats_db;

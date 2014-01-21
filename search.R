@@ -113,13 +113,12 @@ if ( is.null(opt$include.hashtags ) ) { opt$include.hashtags = FALSE }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 if ( is.null(opt$query ) ) { opt$query = FALSE }
 
-if(!is.null(opt$query)) {
+if(opt$query) {
     searchOne(-1, q=opt$query,
               include.users=opt$include.users,
               include.hashtags=opt$include.hashtags) 
 } else {
     searchFor(my.config$sleep.dump,
-              include.timelines=opt$timelines,
               include.users=opt$include.users,
               include.hashtags=opt$include.hashtags)
 }
