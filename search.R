@@ -73,6 +73,8 @@ searchFor <- function(sleep=5, include.users=FALSE, include.hashtags=FALSE) {
         try(searchOne(record$id,
                       record$q, 
                       sinceID=record$sinceid,
+                      include.users=include.users,
+                      include.hashtags=include.hashtags,
                       geocode=record$geocode,
                       lang=record$lang
         ))
