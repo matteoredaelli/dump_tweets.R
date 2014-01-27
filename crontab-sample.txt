@@ -3,5 +3,5 @@
 1  23 * * * /usr/bin/mysqldump --single-transaction --all-databases -u root > /home/r/backup/mysql.dump
 50  * * * * cd /home/r/dump_tweets.R && /usr/bin/Rscript search.R
 52 23 * * * cd /home/r/dump_tweets.R && /usr/bin/Rscript users.R
-55 23 * * * cd /home/r/dump_tweets.R && /usr/bin/Rscript bot_users.R
+55 23 * * * cd /home/r/dump_tweets.R && /usr/bin/Rscript dump_db.R
 58 23 * * * cd /home/r/dump_tweets.R && /usr/bin/Rscript stats_db.R
