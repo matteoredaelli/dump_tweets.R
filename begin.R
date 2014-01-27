@@ -35,11 +35,6 @@ source("config.R")
 basicConfig()
 
 ## ############################################
-## redis
-## ############################################
-source("redis-utils.R")
-
-## ############################################
 ## twitter
 ## ############################################
 source("twitter.R")
@@ -58,9 +53,4 @@ con <- dbConnect(MySQL(),
 
 loginfo("using UTF8 code")
 dbSendQuery(con, "SET NAMES 'utf8'")
-
-## ############################################
-## rredis
-## ############################################
-redisConnect(host=my.config$redis.host, port=my.config$redis.port)
 

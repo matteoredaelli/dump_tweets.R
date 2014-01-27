@@ -31,9 +31,9 @@ insert into search_for (id, mail, q) values
 
 DROP TABLE IF EXISTS search_results;
 CREATE TABLE search_results (
-  `search_for_id` varchar(30) not null,
+  `id` varchar(30) not null,
   `tweet_id` varchar(30) not NULL,
-   PRIMARY KEY (search_for_id, tweet_id)
+   PRIMARY KEY (id, tweet_id)
 );
 
 DROP TABLE IF EXISTS tweets;
@@ -57,6 +57,7 @@ CREATE TABLE tweets (
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `lang` varchar(2),
   `sentiment` tinyint(4),
+  `first_url` varchar(100),
    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -84,26 +85,37 @@ CREATE TABLE `users` (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS bot_users;
-CREATE TABLE bot_users (
+DROP TABLE IF EXISTS timeline_for;
+CREATE TABLE timeline_for (
   `id` varchar(30) not null,
-  `mail` varchar(300) not null,
-  `sinceid` varchar(30) not NULL default 0,
+  `mail` varchar(300) not null default 'noreply@dump_tweets.org',
+  `sinceid` varchar(30) not NULL default 1,
   `enabled` BOOL DEFAULT 1,
   `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,	
    PRIMARY KEY (id)
 );
 
-insert into bot_users (id, mail) values 
+insert into timeline_for (id, mail) values 
   ('Bridgestone', 'matteo.redaelli@gmail.com'),
   ('goodyear_uk', 'matteo.redaelli@gmail.com'),
   ('Pirelli_Media', 'matteo.redaelli@gmail.com'),
   ('continentaltire', 'matteo.redaelli@gmail.com'),
   ('MichelinTyres', 'matteo.redaelli@gmail.com'),
+  ('MichelinUSA', 'matteo.redaelli@gmail.com'),
   ('KumhoTyres', 'matteo.redaelli@gmail.com'),
   ('KumhoTyresUK', 'matteo.redaelli@gmail.com'),
-  ('KumhoTireUSA', 'matteo.redaelli@gmail.com')
+  ('KumhoTireUSA', 'matteo.redaelli@gmail.com'),
+  ('HankookUSA', 'matteo.redaelli@gmail.com'),
+  ('HankookSport', 'matteo.redaelli@gmail.com'),
+  ('YokohamaTC', 'matteo.redaelli@gmail.com')
 ;
+
+DROP TABLE IF EXISTS timeline_results;
+CREATE TABLE timeline_results (
+  `id` varchar(30) not null,
+  `tweet_id` varchar(30) not NULL,
+   PRIMARY KEY (id, tweet_id)
+);
 
 DROP TABLE IF EXISTS stats_db;
 CREATE TABLE stats_db (

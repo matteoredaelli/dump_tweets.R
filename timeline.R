@@ -16,53 +16,47 @@
 ##################################################################
 ## file history
 ##################################################################
-## 2013-06-24: matteo redaelli: first release
-## 2013-11-25: matteo redaelli: switching to mysql
+## 2014-01-22: matteo redaelli: first release
 ##
 
 ##################################################################
 ## TODO
 ##################################################################
-## 1) managing options since,until, lang
 ##
 ##
 
 ## ############################################
-## searchOne
+## timelineOne
 ## ############################################
-searchOne <- function(id, q, sinceID=0, geocode=NULL, lang=NULL) {
-    if( !is.null(geocode) && (is.na(geocode) || geocode=='')) geocode <- NULL
-    if( !is.null(lang)    && (is.na(lang)    || lang==''))    lang <- NULL
-    loginfo(sprintf("Searching for q=%s, sinceID=%s", q, sinceID))
-    tweets <- searchTwitter(q, n=1500, sinceID=sinceID, geocode=geocode, lang=lang)
+timelineOne <- function(id, sinceID=1, includeRts=TRUE, save=FALSE) {
+    loginfo(sprintf("Timeline for userid=%s, sinceID=%s", id, sinceID))
+    tweets <- userTimeline(id, sinceID=sinceID, includeRts=includeRts, n=1000)
 
     if( length(tweets) == 0) {
-        logwarn(sprintf("No tweets found searching for q=%s, sinceID=%s", q, sinceID))
+        logwarn(sprintf("No tweets found timelineing for id=%s, sinceID=%s", id, sinceID))
     } else {
-        if(id <0)
-            saveTweetsAndSinceID(id, tweets, sinceID.table=NULL, results.table="search_results")
+        if(save)
+            saveTweetsAndSinceID(id, tweets, sinceID.table="timeline_for", results.table="timeline_results")
         else
-            saveTweetsAndSinceID(id, tweets, sinceID.table="search_for", results.table="search_results")
+            saveTweetsAndSinceID(id, tweets, sinceID.table=NULL, results.table=NULL)
+
     }
 }
 
 ## ############################################
-## searchFor
+## timelineFor
 ## ############################################
-searchFor <- function(sleep=5) {
-    loginfo("Starting searches...")
-    search.for <- dbGetQuery(con, "select * from search_for where enabled=1")
+timelineFor <- function(sleep=5, includeRts=TRUE) {
+    loginfo("Starting timelinees...")
+    timeline.for <- dbGetQuery(con, "select * from timeline_for where enabled=1")
 
-    for (c in 1:nrow(search.for)) {
-        record <- search.for[c,]
-        loginfo(sprintf("ID=%s, q=%s, SINCEID=%s", record$id, record$q, record$sinceid))
-        try(searchOne(record$id,
-                      record$q, 
-                      sinceID=record$sinceid,
-                      geocode=record$geocode,
-                      lang=record$lang
-        ))
-        loginfo("Sleeping some seconds before a new twitter search")
+    for (c in 1:nrow(timeline.for)) {
+        record <- timeline.for[c,]
+        loginfo(sprintf("ID=%s, SINCEID=%s", record$id, record$sinceid))
+        timelineOne(record$id,
+                      sinceID=record$sinceid, includeRts=includeRts, save=TRUE
+        )
+        loginfo("Sleeping some seconds before a new twitter timeline")
         Sys.sleep(sleep)
     }
 }
@@ -78,7 +72,7 @@ source("begin.R")
 spec = matrix(c(
     'verbose',           'v', 2, "integer",
     'help',              'h', 0, "logical",
-    'query',             'q', 1, "character"
+    'user',              'u', 1, "character"
     ), byrow=TRUE, ncol=4);
 
 opt = getopt(spec);
@@ -93,12 +87,14 @@ if ( !is.null(opt$help) ) {
 ## but were not specified.
 
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
-if ( is.null(opt$query ) ) { opt$query = FALSE }
+if ( is.null(opt$user ) ) { opt$user = FALSE }
 
-if(opt$query) {
-    searchOne(-1, q=opt$query)
+if(opt$user) {
+    sql <- sprintf("insert into timeline_for (id) values('%s')", opt$user)
+    try(dbSendQuery(con, sql))
+    timelineOne(id=opt$user)
 } else {
-    searchFor(my.config$sleep.dump)
+    timelineFor()
 }
 
 source("end.R")

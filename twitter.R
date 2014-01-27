@@ -89,13 +89,16 @@ mygetFriendIDs <- function(user) {
 ## saveTweetsAndSinceID
 ## ############################################
 saveTweetsAndSinceID <- function(id, tweets, sinceID.table=NULL, results.table=NULL) {
-    if (length(tweets) == 0) {
+    tot <- length(tweets)
+    loginfo(sprintf("Found %d tweets", tot))
+    if(tot == 0) {
         loginfo("No tweets found!!")
     } else if (!is.null(tweets[1]$error)) {
-        loginfo(sprintf("ERROR: %s", tweets$error))
+        logwarn("Error, no retreived tweets")
+        loginfo(sprintf("ERROR: %s", tweets[1]$error))
     } else {
+        logdebug("Converting tweets list to a dataframe")
         tweets_df = twListToDF(tweets)
-        loginfo(sprintf("Found %d tweets", nrow(tweets_df)))
         
         #tweets_df$text <- unlist(lapply(tweets_df$text, function(t) iconv(t, to="UTF8")))
         tweets_df$text <- iconv(tweets_df$text, to="UTF8")
@@ -113,7 +116,7 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table=NULL, results.table=N
 
         if (!is.null(results.table)) {
             loginfo(sprintf("saving data to %s table...", results.table))
-            results <- data.frame(search_for_id=id, tweet_id=tweets_df$id)
+            results <- data.frame(id=id, tweet_id=tweets_df$id)
             dbWriteTable(con, results.table, results, row.names=FALSE, append=TRUE)
         }
         
@@ -148,115 +151,6 @@ analyzeTweets <- function(df, top=20) {
         topWords=dfToText(top.words),
         topUsers=dfToText(top.users),
         topRetwittingUsers=dfToText(top.retwittingUsers))
-}
-
-## ############################################
-## botUsers
-## ############################################
-botFewUsers <- function(users.id, include.followers=TRUE, include.friends=TRUE, n=2000, include.timelines=TRUE) {
-    if (length(users.id) == 0) {
-        loginfo("No users to be bot!!")
-    } else {
-        loginfo(sprintf("twitter lookup for %d users", length(users.id)))
-        logwarn(sprintf("twitter lookup users: %s", paste(users.id, collapse=", ")))
-        users <- lookupUsers(users.id)
-        users.ldf <- lapply(users, as.data.frame)
-        users.df <- do.call("rbind", users.ldf)
-
-        users.count <- nrow(users.df)
-        if (is.null(users.df) || users.count == 0) {
-          loginfo("No users retreived. Something went wrong")
-          return(1)
-        }
-        loginfo("saving users to users table...")
-        try(dbWriteTable(con, "users", users.df, row.names=FALSE, append=TRUE))
-        
-        loginfo("adding users to visited users queue")
-        sapply(users.df$id, function(id) redisSAdd("twitter:users:lookups:visited", charToRaw(id)))
-
-        if (include.timelines) 
-            queueAddTodoTimelinesUsers(users.df$id)
-        
-        followers.id <- friends.id <- c()
-
-        if (include.followers) {
-           loginfo("Retriving followers...")
-           for (i in 1:length(users)) {
-               some.id <- mygetFollowerIDs(users[[i]])
-               followers.id <- c(followers.id, some.id)
-               Sys.sleep(my.config$sleep.dump)
-           }
-           loginfo(sprintf("found %d followers", length(followers.id)))
-       }
-        Sys.sleep(my.config$sleep.dump)
-        if (include.friends) {
-           loginfo("Retriving friends")
-           for (i in 1:length(users)) {
-               some.id <- mygetFriendIDs(users[[i]])
-               friends.id <- c(friends.id, some.id)
-               Sys.sleep(my.config$sleep.dump)
-           }
-           loginfo(sprintf("found %d friends", length(friends.id)))
-       }
-        
-        users.id <- unique(c(followers.id, friends.id))
-        loginfo("removing current users from followers and friends..")
-        users.id <- setdiff(users.id, users.df$id)
-        
-        if (is.null(users.id) || length(users.id) == 0) {
-            loginfo("no followers and/or friends to be crawled")
-        } else {
-            queueAddTodoLookupsUsers(users.id)
-        }
-    }
-}
-
-## ############################################
-## botUsers
-## ############################################
-botUsers <- function(users.id, include.followers=TRUE, include.friends=TRUE, include.timelines=TRUE, n=2000) {
-  tot <- length(users.id)
-  loginfo(sprintf("Found in %d users", tot))
-  if(!is.null(users.id) && tot > 100) {
-    split.by <- as.integer(tot / 100) + 1
-    loginfo(sprintf("splitting users in %d groups", split.by))
-    users.id.list <- chunk(users.id, split.by)
-    lapply(users.id.list, function(id.list) botFewUsers(id.list, include.followers=include.followers, include.friends=include.friends, n=n))
-  } else {
-    botFewUsers(users.id,
-                include.followers=include.followers,
-                include.friends=include.friends,
-                include.timelines=include.timelines,
-                n=n)
-  } 
-}
-
-## ############################################
-## queue function
-## ############################################
-queueAddTodo <- function(element, queue.todo, queue.visited) {
-    logdebug(sprintf("element %s", element))
-    if(redisSIsMember(queue.visited, element)) {
-        logdebug(sprintf("element %s already visited", element))
-    } else {
-        logdebug(sprintf("adding element  %s", element))
-        redisSAdd(queue.todo, charToRaw(element))
-    }
-}
-
-queueAddTodoHashtags <- function(hashtags) {
-    loginfo(paste("Adding hashtags to queue: ", paste(hashtags, collapse=", ")))
-    sapply(hashtags, function(e) queueAddTodo(e, "twitter:hashtags:todo", "twitter:hashtags:visited"))
-}
-
-queueAddTodoLookupsUsers <- function(users) {
-    loginfo("Adding users to lookup queue")
-    sapply(users, function(e) queueAddTodo(e, "twitter:users:lookups:todo", "twitter:users:lookups:visited"))
-}
-
-queueAddTodoTimelinesUsers <- function(users) {
-    loginfo("Adding users to timeline queue")
-    sapply(users, function(e) queueAddTodo(e, "twitter:users:timelines:todo", "twitter:users:timelines:visited"))
 }
 
 ## ############################################
