@@ -53,4 +53,5 @@ con <- dbConnect(MySQL(),
 
 loginfo("using UTF8 code")
 dbSendQuery(con, "SET NAMES 'utf8'")
+dbSendQuery(con, "set character_set_server = 'utf8'")
 
