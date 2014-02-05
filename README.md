@@ -19,14 +19,21 @@ dump_tweets.R is sponsorized by Associazione Rospo (http://associazionerospo.org
 
 2) install a MySQL / Maria Database
 
-3) install a Redis Server (used for managing queues)
+3) copy config-sample.R to config.R and update it with your settings
 
-4) copy config-sample.R to config.R and update it with your settings
-
-5) use the file setup_db.sql to create a new mysql database and needed tables
+4) use the file setup_db.sql to create a new mysql database and needed tables
 
   example: (if you use linux) mysql -u root < setup_db.sql
 
+5) install R 
+
+6) install R packages
+
+  install.packages(c("devtools", "tm", "ggplot2", "stringr", "logging", "reshape2", "FactoMineR", "igraph", "wordcloud", "RColorBrewer", "textcat", "getopt", "RMySQL", "RCurl"))
+
+  install_github("httr")
+
+  install_github("twitteR", username="geoffjentry")
 
 ## USAGE
 

@@ -101,8 +101,9 @@ saveTweetsAndSinceID <- function(id, tweets, sinceID.table=NULL, results.table=N
         tweets_df = twListToDF(tweets)
         
         #tweets_df$text <- unlist(lapply(tweets_df$text, function(t) iconv(t, to="UTF8")))
-        tweets_df$text <- iconv(tweets_df$text, to="UTF8")
+        ##tweets_df$text <- iconv(tweets_df$text, to="UTF8")
 
+        #tweets_df$text <- preprocessingEncoding(tweets_df$text)
 
         #tweets_df$text <- normalizeUTF8text(tweets$text)
         #tweets_df$lang <- textcat(tweets$text, ECIMCI_profiles)

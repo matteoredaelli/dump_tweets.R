@@ -27,6 +27,7 @@ library(tm)
 library(logging)
 library(getopt)
 library(RMySQL)
+library(TextWiller)
 
 ## ############################################
 ## loading options
