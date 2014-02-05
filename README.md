@@ -31,6 +31,10 @@ dump_tweets.R is sponsorized by Associazione Rospo (http://associazionerospo.org
 
   install.packages(c("devtools", "tm", "ggplot2", "stringr", "logging", "reshape2", "FactoMineR", "igraph", "wordcloud", "RColorBrewer", "textcat", "getopt", "RMySQL", "RCurl"))
 
+  library(devtools)
+
+  install_github("TextWiller", "livioivil")
+
   install_github("httr")
 
   install_github("twitteR", username="geoffjentry")
