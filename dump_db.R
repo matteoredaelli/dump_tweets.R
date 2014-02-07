@@ -33,7 +33,7 @@ dumpOneSearch <- function(record, folder, period.format=NULL, period.value=NULL)
                     record$id,
                     period.value,
                     period.format))
-    sql <- sprintf("select t.*, s.geocode, s.lang lang_twitter from tweets t inner join search_results r on r.tweet_id=t.id inner join search_for s on r.search_for_id = s.id where search_for_id='%s' and date_format(t.created, '%s') =  '%s'", 
+    sql <- sprintf("select t.*, s.geocode, s.lang lang_twitter from tweets t inner join search_results r on r.tweet_id=t.id inner join search_for s on r.id = s.id where s.id='%s' and date_format(t.ts, '%s') =  '%s'", 
                    record$id,
                    period.format,
                    period.value)
