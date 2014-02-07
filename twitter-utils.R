@@ -96,10 +96,12 @@ twTopHashtags <- function(text, top=10) {
 
 twTopRetwittingUsers <- function(text, top=10) {
     ## TODO: the regular expression may not be correct.. sometimes I see @_opesource_
-    users.list <- str_extract_all(text, "(RT|via)((?:\\b\\W*@\\w+)+)")
-    users <- unlist(users.list)
-    users <- gsub(":", "", users) 
-    users <- gsub("(RT @|via @)", "", users, ignore.case=TRUE) 
+    #users.list <- str_extract_all(text, "(RT|via)((?:\\b\\W*@\\w+)+)")
+    #users <- unlist(users.list)
+    #users <- gsub(":", "", users) 
+    #users <- gsub("(RT @|via @)", "", users, ignore.case=TRUE) 
+    #TODO : managing VIA
+    users <- gsub("^RT @([^:]+):.*", "\\1", text, perl=TRUE)
     t <- table(users)
     if( length(t) == 0) {
         logwarn("Found 0 occurrences in twTopRetwittingUsers")

@@ -22,23 +22,25 @@
 ## ############################################
 ## dumpOneSearch
 ## ############################################
-drop_old_db_entries <- function(period.format, period.value) {
+clean_db <- function(period.format, period.value) {
     loginfo(sprintf("Dropping tweets for period %s (%s)", 
                     period.value,
                     period.format))
-    sql <- sprintf("delete from tweets where date_format(t.ts, '%s') < '%s'", 
+    sql <- sprintf("delete from tweets where date_format(ts, '%s') < '%s'", 
                    period.format,
                    period.value)
-    
     logdebug(sql)
-    dbSendQuery(con, sql)
+    rs <- dbSendQuery(con, sql)
+    tot <- dbGetInfo(rs, what = "rowsAffected")
+    logdebug(sprintf("rowsAffected=%s", tot))
 
-    sql <- sprintf("delete from users where date_format(t.ts, '%s') < '%s'", 
+    sql <- sprintf("delete from users where date_format(ts, '%s') < '%s'", 
                    period.format,
                    period.value)
-    
     logdebug(sql)
-    dbSendQuery(con, sql)
+    rs <- dbSendQuery(con, sql)
+    tot <- dbGetInfo(rs, what = "rowsAffected")
+    logdebug(sprintf("rowsAffected=%s", tot))
 }
 
 source("begin.R")
@@ -68,9 +70,8 @@ if (is.null(opt$period.format) )
     opt$period.format <- "%Y-%v"
 
 if (is.null(opt$period.value) ) 
-    opt$period.format <- "2014-01"
+    opt$period.value <- "2014-01"
 
-drop_old_db_entries(my.config$rdata.folder,
-                    period.format=opt$period.format,
+clean_db(period.format=opt$period.format,
                     period.value=opt$period.value)
 source("end.R")
