@@ -9,4 +9,5 @@ use twitter;
 source setup_db_00.sql;
 source setup_db_01.sql;
 source setup_db_02.sql;
+source setup_db_03.sql;
 
