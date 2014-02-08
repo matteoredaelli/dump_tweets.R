@@ -22,7 +22,11 @@
 ## ############################################
 ## dumpOneSearch
 ## ############################################
-clean_db <- function(period.format, period.value) {
+clean_db <- function(period.format, period.value=NULL) {
+    if(is.null(period.value)) {
+        sql <- sprintf("select date_format(CURDATE(), '%s')", period.format)
+        period.value <- dbGetQuery(con, sql)[1,][1]
+    }
     loginfo(sprintf("Dropping tweets for period %s (%s)", 
                     period.value,
                     period.format))
@@ -68,9 +72,6 @@ if ( !is.null(opt$help) ) {
 
 if (is.null(opt$period.format) ) 
     opt$period.format <- "%Y-%v"
-
-if (is.null(opt$period.value) ) 
-    opt$period.value <- "2014-01"
 
 clean_db(period.format=opt$period.format,
                     period.value=opt$period.value)
