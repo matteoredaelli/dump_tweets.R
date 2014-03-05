@@ -79,7 +79,8 @@ twTopLinks <- function(text, top=10) {
 }
 
 twTopHashtags <- function(text, top=10) {
-    t <- tolower(unlist(lapply(strsplit(text, '[ :.,;]'), function(w) grep('#', w, value=TRUE))))
+    ##t <- tolower(unlist(lapply(strsplit(text, '[ :.,;]'), function(w) grep('#', w, value=TRUE))))
+    t <- tolower(unlist(str_extract_all(text, "#[[:alnum:]]+")))
     t <- table(t)
     if( length(t) == 0) {
         logwarn("Found 0 occurrences in twTopHashtags")
