@@ -102,7 +102,8 @@ twTopRetwittingUsers <- function(text, top=10) {
     #users <- gsub(":", "", users) 
     #users <- gsub("(RT @|via @)", "", users, ignore.case=TRUE) 
     #TODO : managing VIA
-    users <- gsub("^RT @([^:]+):.*", "\\1", text, perl=TRUE)
+    #users <- gsub("^RT @([^:]+):.*", "\\1", text, perl=TRUE)
+    users <- gsub("(RT|via) ", "", unlist(str_extract_all(text, "(RT|via) @[[:alnum:]]+")))
     t <- table(users)
     if( length(t) == 0) {
         logwarn("Found 0 occurrences in twTopRetwittingUsers")
@@ -164,7 +165,7 @@ twChartAgents <- function(df, output.dir=".", output.file="agents.png", width=10
 ##########
 twChartAuthors <- function(df, output.dir=".", output.file="authors.png", width=1000, height=500, color="red", top=10) {
     filename <- file.path(output.dir, output.file)
-    sources = twTopContributors(df, top=top)
+    sources = twTopUsers(df, top=top)
     png(filename, width=width, height=height, units="px")
     p <- barchart(sources, col=color, xlab="tweets", ylab="people")
     print(p)
@@ -400,7 +401,7 @@ twChartWhoRetweetsWhom <- function(df, output.dir=".", output.file="who-retweets
     ## regular expressions to find retweets
 
     ## which tweets are retweets
-    rt_patterns = grep("(RT|via)((?:\\b\\W*@\\w+)+)", 
+    rt_patterns = grep("(RT|via) @[[:alnum:]]+", 
         dm_txt, ignore.case=TRUE)
 
     ## show retweets (these are the ones we want to focus on)
@@ -415,7 +416,7 @@ twChartWhoRetweetsWhom <- function(df, output.dir=".", output.file="who-retweets
         twit = df[rt_patterns[i],]
         ## get retweet source 
         poster = str_extract_all(twit$text,
-            "(RT|via)((?:\\b\\W*@\\w+)+)") 
+            "(RT|via) @[[:alnum:]]+") 
         ## remove ':'
         poster = gsub(":", "", poster) 
         ## name of retweeted user
