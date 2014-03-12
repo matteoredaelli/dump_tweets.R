@@ -9,3 +9,4 @@ config.R
 *.png
 *.jpg
 \#*#
+.Rproj.user

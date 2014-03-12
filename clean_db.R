@@ -27,7 +27,7 @@ clean_db <- function(period.format, period.value=NULL) {
         sql <- sprintf("select date_format(CURDATE(), '%s')", period.format)
         period.value <- dbGetQuery(con, sql)[1,][1]
     }
-    loginfo(sprintf("Dropping tweets for period %s (%s)", 
+    loginfo(sprintf("Dropping tweets for  period < %s (%s)", 
                     period.value,
                     period.format))
     sql <- sprintf("delete from tweets where date_format(ts, '%s') < '%s'", 
