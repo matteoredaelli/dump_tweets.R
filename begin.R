@@ -28,6 +28,7 @@ library(logging)
 library(getopt)
 library(RMySQL)
 library(TextWiller)
+library(twitteRutils)
 
 ## ############################################
 ## loading options

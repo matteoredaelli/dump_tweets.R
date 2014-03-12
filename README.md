@@ -39,6 +39,8 @@ dump_tweets.R is sponsorized by Associazione Rospo (http://associazionerospo.org
 
   install_github("twitteR", username="geoffjentry")
 
+  install_github("twitteRutils", username="matteoredaelli")
+
 ## USAGE
 
 ### Searching tweets
