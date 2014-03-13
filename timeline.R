@@ -86,10 +86,10 @@ if ( !is.null(opt$help) ) {
 ## set some reasonable defaults for the options that are needed,
 ## but were not specified.
 
-if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
-if ( is.null(opt$user ) ) { opt$user = FALSE }
+if ( is.null(opt$verbose) ) { opt$verbose = FALSE }
+##if ( is.null(opt$user) ) { opt$user = FALSE }
 
-if(opt$user) {
+if (!is.null(opt$user)) {
     sql <- sprintf("insert into timeline_for (id) values('%s')", opt$user)
     try(dbSendQuery(con, sql))
     timelineOne(id=opt$user)
