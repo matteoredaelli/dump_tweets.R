@@ -26,8 +26,6 @@
 library(twitteR)
 library(textcat)
 
-#source("twitter-utils.R")
-
 chunk <- function(x,n=500) split(x, factor(sort(rank(x)%%n)))
 
 mygetFollowerIDs <- function(user) {
