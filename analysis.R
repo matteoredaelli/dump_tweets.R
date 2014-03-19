@@ -44,6 +44,7 @@ spec = matrix(c(
   'height'    ,'H', 1, "character",
   'width'     ,'W', 1, "character",
   'user'      ,'u', 1, "character",
+  'query'     ,'q', 1, "character",
   'tz'        ,'t', 1, "integer",
   'top'       ,'T', 1, "integer",
   'color'     ,'c', 1, "logical",
@@ -54,7 +55,7 @@ spec = matrix(c(
 opt = getopt(spec);
 # if help was asked for print a friendly message
 # and exit with a non-zero error code
-if ( !is.null(opt$help) || is.null(opt$user)) {
+if ( !is.null(opt$help) || (is.null(opt$user) && is.null(opt$query))) {
   cat(getopt(spec, usage=TRUE))
   q(status=1);
 }
@@ -64,11 +65,9 @@ if ( !is.null(opt$version) ) {
   q(status=1)
 }
 
-
 #set some reasonable defaults for the options that are needed,
 #but were not specified.
 if ( is.null(opt$color ) ) { opt$color = "red" }
-if ( is.null(opt$user ) ) { opt$user = "matteoredaelli" }
 if ( is.null(opt$height ) ) { opt$height = 600 }
 if ( is.null(opt$width ) ) { opt$width = 600 }
 if ( is.null(opt$tz ) ) { opt$tz = "Europe/Rome" }
@@ -81,36 +80,20 @@ if ( is.null(opt$stopwords) ) {
 
 loginfo(sprintf("Stopwords: %s", paste(opt$stopwords, sep=",", collapse=",")))
 
+if (!is.null(opt$user)) {
+  loginfo(sprintf("Loading tweets for user %s", opt$user))
+  sql <- sprintf("select * from tweets where screenName='%s'", opt$user)
+  tweets.df <- dbGetQuery(con, sql)
+} else {
+  loginfo(sprintf("Searching tweets about '%s'", opt$query))
+  tweets <- searchTwitter(opt$query, n=1500)
+  tweets.df <- twListToDF(tweets)
+}
 
-loginfo(sprintf("Loading tweets for user %s", opt$user))
-sql <- sprintf("select * from tweets where screenName='%s'", opt$user)
-tweets_df <- dbGetQuery(con, sql)
-
-df <- twNormalizeDate(tweets_df, opt$tz)
-
-#twHistTweets(df, breaks="30 mins", width=opt$width, height=opt$height, color=opt$color)
-
-try(twChartAgents(df, width=opt$width, height=opt$height, color=opt$color, top=opt$top))
-try(twChartAuthors(df, width=opt$width, height=opt$height, color=opt$color, top=opt$top))
-try(twChartAuthorsWithRetweets(df, width=opt$width, height=opt$height, color=opt$color, top=opt$top))
-try(twChartAuthorsWithReplies(df, width=opt$width, height=opt$height, color=opt$color, top=opt$top))
-try(twChartInfluencers(df, width=opt$width, height=opt$height,
-                       color=opt$color, top=opt$top,
-                       from=1, output.file="influencers.png"))
-try(twChartInfluencers(df, width=opt$width, height=opt$height,
-                       color=opt$color, top=opt$top,
-                       from=2, output.file="influencers-excluding-topscores-1.png"))
-text = tweets_df$text
-text <- twCleanText(text)
-tdm.matrix <- twBuildTDMMatrix(text, stopwords=opt$stopwords)
-
-try(twChartWordcloud(table=twTopWords(text, top=20),
-                     width=opt$width, height=opt$height, output.file="wordcloud-hashtags.png"))
-try(twChartWordcloud(table=twTopHashtags(tweets_df$text, top=20),
-                     width=opt$width, height=opt$height, output.file="wordcloud-hashtags.png"))
-try(twChartGivenTopics(tdm.matrix=tdm.matrix, width=opt$width, height=opt$height))
-try(twChartWhoRetweetsWhom(tweets_df, width=opt$width, height=opt$height))
-try(twChartDendrogram(tdm.matrix=tdm.matrix, width=opt$width, height=opt$height))
+AnalyzeTweets(tweets.df, top=opt$top, 
+              stopwords=opt$stopwords, tz=opt$tz, 
+              output.dir=".", chart.color=opt$color, 
+              chart.width=opt$width, chart.height=opt$height)
 
 # todo: http://bodongchen.com/blog/2013/02/demo-of-using-twitter-hashtag-analytics-package-to-analyze-tweets-from-lak13/
 
