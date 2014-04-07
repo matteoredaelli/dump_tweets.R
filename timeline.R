@@ -48,7 +48,7 @@ timelineOne <- function(id, sinceID=1, includeRts=TRUE, save=FALSE) {
 ## ############################################
 timelineFor <- function(sleep=5, includeRts=TRUE) {
     loginfo("Starting timelinees...")
-    timeline.for <- dbGetQuery(con, "select * from timeline_for where enabled=1")
+    timeline.for <- dbGetQuery(con, "select * from timeline_for where enabled=1 order by sinceid")
 
     for (c in 1:nrow(timeline.for)) {
         record <- timeline.for[c,]
