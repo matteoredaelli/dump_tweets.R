@@ -41,8 +41,9 @@ library(FactoMineR)
 spec = matrix(c(
   'verbose'   ,'v', 2, "integer",
   'help'      ,'h', 0, "logical",
-  'height'    ,'H', 1, "character",
-  'width'     ,'W', 1, "character",
+  'directory' ,'d', 1, "character",
+  'height'    ,'H', 1, "integer",
+  'width'     ,'W', 1, "integer",
   'user'      ,'u', 1, "character",
   'query'     ,'q', 1, "character",
   'tz'        ,'t', 1, "integer",
@@ -68,10 +69,12 @@ if ( !is.null(opt$version) ) {
 #set some reasonable defaults for the options that are needed,
 #but were not specified.
 if ( is.null(opt$color ) ) { opt$color = "red" }
-if ( is.null(opt$height ) ) { opt$height = 600 }
-if ( is.null(opt$width ) ) { opt$width = 600 }
+if ( is.null(opt$height ) ) { opt$height = 900 } else {opt$height = as.integer(opt$height)}
+if ( is.null(opt$width ) ) { opt$width = 900 } else {opt$width = as.integer(opt$width)}
 if ( is.null(opt$tz ) ) { opt$tz = "Europe/Rome" }
 if ( is.null(opt$top ) ) { opt$top = 10 }
+if ( is.null(opt$directory ) ) { opt$directory = "." }
+
 if ( is.null(opt$stopwords) ) {
   opt$stopwords <- stopwords('english')
 } else {
@@ -92,7 +95,7 @@ if (!is.null(opt$user)) {
 
 AnalyzeTweets(tweets.df, top=opt$top, 
               stopwords=opt$stopwords, tz=opt$tz, 
-              output.dir=".", chart.color=opt$color, 
+              output.dir=opt$directory, chart.color=opt$color, 
               chart.width=opt$width, chart.height=opt$height)
 
 # todo: http://bodongchen.com/blog/2013/02/demo-of-using-twitter-hashtag-analytics-package-to-analyze-tweets-from-lak13/
